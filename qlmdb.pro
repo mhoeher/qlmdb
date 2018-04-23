@@ -3,6 +3,7 @@ TEMPLATE = subdirs
 SUBDIRS += \
     qlmdb \
     tests
+tests.depends += qlmdb
 
 OTHER_FILES += \
     .gitlab-ci.yml \
