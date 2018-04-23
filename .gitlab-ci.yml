@@ -1,0 +1,10 @@
+fedora:
+    stage: build
+    image: fedora
+    script:
+        - yum install -y gcc gcc-c++ make qt5-qtbase-devel
+        - mkdir build/fedora
+        - cd build/fedora
+        - qmake-qt5 ../..
+        - make -j4
+        - make check
