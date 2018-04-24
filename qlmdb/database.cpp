@@ -48,8 +48,39 @@ Database::Database() :
     d->q_ptr = this;
 }
 
+
+/**
+ * @brief Copy constructor.
+ *
+ * Creates a Database from another one. Note that the resulting Database
+ * object will share the same state as @p other one we copy from -
+ * e.g. closing one will also close the other.
+ */
+Database::Database(const Database &other) :
+    d_ptr(other.d_ptr)
+{
+}
+
+
+/**
+ * @brief Destructor.
+ */
 Database::~Database()
 {
+}
+
+
+/**
+ * @brief Assignment operator.
+ *
+ * Copy the @p other database onto this one. Note that afterwards both will
+ * share the same underlying state, i.e. closing one will also close
+ * the other.
+ */
+Database &Database::operator =(const Database &other)
+{
+    d_ptr = other.d_ptr;
+    return *this;
 }
 
 
@@ -211,6 +242,14 @@ void Database::clearError()
 {
     Q_D(Database);
     d->lastErrorString.clear();
+}
+
+Collection Database::collection(const QByteArray &name)
+{
+    Collection c;
+    c.setDatabase(d_ptr);
+    c.setName(name);
+    return c;
 }
 
 } // namespace QLMDB

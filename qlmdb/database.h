@@ -17,9 +17,10 @@
 #ifndef QLMDB_DATABASE_H
 #define QLMDB_DATABASE_H
 
-#include <QScopedPointer>
+#include <QSharedPointer>
 
 #include "qlmdb_global.h"
+#include "collection.h"
 
 namespace QLMDB {
 
@@ -42,7 +43,10 @@ public:
     static const int DefaultMaxTables = 100;
 
     explicit Database();
+    Database(const Database &other);
     virtual ~Database();
+
+    Database& operator =(const Database &other);
 
     QString directory() const;
     void setDirectory(const QString& directory);
@@ -58,8 +62,10 @@ public:
     QString lastErrorString() const;
     void clearError();
 
+    Collection collection(const QByteArray &name);
+
 private:
-    QScopedPointer<DatabasePrivate> d_ptr;
+    QSharedPointer<DatabasePrivate> d_ptr;
     Q_DECLARE_PRIVATE(Database)
 };
 

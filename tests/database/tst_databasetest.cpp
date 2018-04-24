@@ -32,6 +32,8 @@ private Q_SLOTS:
     void cleanupTestCase();
     void open();
     void maxTables();
+    void copyConstructor();
+    void assignmentOperator();
 
 private:
     QTemporaryDir *tempDir;
@@ -93,6 +95,35 @@ void DatabaseTest::maxTables()
     db.setMaxTables(10);
     QVERIFY(db.hasError());
     QCOMPARE(db.maxTables(), 20);
+}
+
+void DatabaseTest::copyConstructor()
+{
+    QLMDB::Database db;
+    QVERIFY(db.open(tempDir->path()));
+    QVERIFY(db.isOpen());
+
+    {
+        QLMDB::Database db2(db);
+        QVERIFY(db2.isOpen());
+    }
+
+    QVERIFY(db.isOpen());
+}
+
+void DatabaseTest::assignmentOperator()
+{
+    QLMDB::Database db;
+    QVERIFY(db.open(tempDir->path()));
+    QVERIFY(db.isOpen());
+
+    {
+        QLMDB::Database db2;
+        db2 = db;
+        QVERIFY(db2.isOpen());
+    }
+
+    QVERIFY(db.isOpen());
 }
 
 QTEST_APPLESS_MAIN(DatabaseTest)

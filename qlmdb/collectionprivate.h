@@ -14,36 +14,26 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef DATABASEPRIVATE_H
-#define DATABASEPRIVATE_H
+#ifndef COLLECTIONPRIVATE_H
+#define COLLECTIONPRIVATE_H
 
-#include "liblmdb/lmdb.h"
+#include <QByteArray>
+#include <QWeakPointer>
 
-#include <QSharedData>
-#include <QString>
+#include "collection.h"
+#include "databaseprivate.h"
 
 namespace QLMDB {
 
-class Database;
-
-class DatabasePrivate : public QSharedData
+class CollectionPrivate
 {
 public:
-    Database* q_ptr;
+    CollectionPrivate();
 
-    QString directory;
-    QString lastErrorString;
-
-    MDB_env *environment;
-
-    int maxTables;
-
-    explicit DatabasePrivate();
-    virtual ~DatabasePrivate();
-    bool createEnvironment();
-
+    QByteArray name;
+    QWeakPointer<DatabasePrivate> database;
 };
 
 } // namespace QLMDB
 
-#endif // DATABASEPRIVATE_H
+#endif // COLLECTIONPRIVATE_H
