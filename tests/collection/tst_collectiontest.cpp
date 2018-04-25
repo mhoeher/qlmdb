@@ -33,6 +33,10 @@ private Q_SLOTS:
     void cleanupTestCase();
     void defaultConstructor();
     void collectionFromDatabase();
+    void put();
+    void get();
+    void multiPut();
+    void getAll();
 private:
     QTemporaryDir *tempDir;
 };
@@ -64,6 +68,67 @@ void CollectionTest::collectionFromDatabase()
     auto c = db.collection("test");
     QVERIFY(c.isValid());
     QCOMPARE(c.name(), QByteArray("test"));
+}
+
+void CollectionTest::put()
+{
+    QLMDB::Database db;
+    QVERIFY(db.open(tempDir->path()));
+    auto c = db.collection("test");
+    QVERIFY(c.isValid());
+    QVERIFY(c.put("foo", "bar"));
+    QVERIFY(c.put("Hello World", "Hurray!"));
+}
+
+void CollectionTest::get()
+{
+    QLMDB::Database db;
+    QVERIFY(db.open(tempDir->path()));
+    auto c = db.collection("test");
+    QVERIFY(c.isValid());
+    QVERIFY(c.put("foo", "bar"));
+    QVERIFY(c.put("Hello World", "Hurray!"));
+    QCOMPARE(c.get("foo"), QByteArray("bar"));
+    QCOMPARE(c.get("Hello World"), QByteArray("Hurray!"));
+    QVERIFY((c.get("bar").isNull()));
+    QCOMPARE(c.get("baz", "none"), QByteArray("none"));
+    QVERIFY(c.put("foo", "foot"));
+    QCOMPARE(c.get("foo"), QByteArray("foot"));
+}
+
+void CollectionTest::multiPut()
+{
+    QLMDB::Database db;
+    QVERIFY(db.open(tempDir->path()));
+    auto c = db.collection("test", QLMDB::Collection::MultiValues);
+    QVERIFY(c.isValid());
+    QVERIFY(c.put("foo", "1"));
+    QVERIFY(c.put("foo", "2"));
+    QVERIFY(c.put("foo", "3"));
+    QVERIFY(c.put("bar", "A"));
+    QVERIFY(c.put("bar", "B"));
+}
+
+void CollectionTest::getAll()
+{
+    QLMDB::Database db;
+    QVERIFY(db.open(tempDir->path()));
+    auto c = db.collection("test", QLMDB::Collection::MultiValues);
+    QVERIFY(c.isValid());
+    QVERIFY(c.put("foo", "1"));
+    QVERIFY(c.put("foo", "2"));
+    QVERIFY(c.put("foo", "3"));
+    QVERIFY(c.put("bar", "A"));
+    QVERIFY(c.put("bar", "B"));
+    QCOMPARE(c.getAll("foo"),
+             QByteArrayList({"1", "2", "3"})
+             );
+    QCOMPARE(c.getAll("bar"),
+             QByteArrayList({"A", "B"})
+             );
+    QCOMPARE(c.getAll("baz"),
+             QByteArrayList()
+             );
 }
 
 QTEST_APPLESS_MAIN(CollectionTest)

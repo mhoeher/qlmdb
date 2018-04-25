@@ -62,7 +62,8 @@ public:
     QString lastErrorString() const;
     void clearError();
 
-    Collection collection(const QByteArray &name);
+    Collection collection(const QByteArray &name,
+                          Collection::OpenMode mode = Collection::OpenMode());
 
 private:
     QSharedPointer<DatabasePrivate> d_ptr;

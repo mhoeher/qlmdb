@@ -49,12 +49,37 @@ class QLMDBSHARED_EXPORT Collection
 {
     friend class Database;
 public:
+
+    /**
+     * @brief Options for changing the Collection behavior.
+     */
+    enum OpenModeOptions {
+        /**
+         * @brief Allow multiple values to be stored under one key.
+         *
+         * If this option is set, the collection will be opened in
+         * multi-value mode. In this mode, inserting several times
+         * with the same key will cause the value given each time
+         * to be added as new value. If not present, only one
+         * value per key is allowed; subsequent insertions with the same
+         * key will override the previously stored value.
+         */
+        MultiValues = 0x01
+    };
+
+    Q_DECLARE_FLAGS(OpenMode, OpenModeOptions)
+
     explicit Collection();
     Collection(const Collection &other);
     Collection& operator =(const Collection &other);
 
     QByteArray name() const;
     bool isValid() const;
+
+    bool put(QByteArray key, QByteArray value);
+    QByteArray get(QByteArray key,
+                   const QByteArray &defaultValue = QByteArray());
+    QByteArrayList getAll(const QByteArray &key);
 
 private:
     QSharedPointer<CollectionPrivate> d_ptr;
@@ -63,6 +88,7 @@ private:
     void setValid(bool valid);
     void setName(const QByteArray &name);
     void setDatabase(QSharedPointer<DatabasePrivate> database);
+    void setOpenMode(OpenMode openMode);
 
 };
 

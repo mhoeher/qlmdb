@@ -18,7 +18,7 @@
 #define COLLECTIONPRIVATE_H
 
 #include <QByteArray>
-#include <QWeakPointer>
+#include <QSharedPointer>
 
 #include "collection.h"
 #include "databaseprivate.h"
@@ -31,7 +31,8 @@ public:
     CollectionPrivate();
 
     QByteArray name;
-    QWeakPointer<DatabasePrivate> database;
+    QSharedPointer<DatabasePrivate> database;
+    Collection::OpenMode openMode;
 };
 
 } // namespace QLMDB

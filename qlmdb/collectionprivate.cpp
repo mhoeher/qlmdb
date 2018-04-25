@@ -20,7 +20,8 @@ namespace QLMDB {
 
 CollectionPrivate::CollectionPrivate() :
     name(),
-    database()
+    database(),
+    openMode()
 {
 
 }

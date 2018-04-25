@@ -244,11 +244,27 @@ void Database::clearError()
     d->lastErrorString.clear();
 }
 
-Collection Database::collection(const QByteArray &name)
+
+/**
+ * @brief Get a Collection.
+ *
+ * Returns the connection object called @p name. A "null" QByteArray can
+ * be passed in to get the default collection.
+ *
+ * Collections are key-value stores
+ * within the database (and hence resemble what a table or relation would
+ * be in a relational data base system).
+ *
+ * The @p mode parameter can be used to fine tune how the collection
+ * works.
+ */
+Collection Database::collection(const QByteArray &name,
+                                Collection::OpenMode mode)
 {
     Collection c;
     c.setDatabase(d_ptr);
     c.setName(name);
+    c.setOpenMode(mode);
     return c;
 }
 
