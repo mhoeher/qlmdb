@@ -28,8 +28,8 @@ public:
     DatabaseTest();
 
 private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
+    void init();
+    void cleanup();
     void open();
     void maxTables();
     void copyConstructor();
@@ -43,12 +43,12 @@ DatabaseTest::DatabaseTest()
 {
 }
 
-void DatabaseTest::initTestCase()
+void DatabaseTest::init()
 {
     tempDir = new QTemporaryDir();
 }
 
-void DatabaseTest::cleanupTestCase()
+void DatabaseTest::cleanup()
 {
     delete tempDir;
 }

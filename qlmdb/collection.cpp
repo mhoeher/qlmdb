@@ -19,6 +19,8 @@
 #include "collection.h"
 #include "collectionprivate.h"
 
+#include <QDebug>
+
 namespace QLMDB {
 
 
@@ -178,7 +180,7 @@ QByteArray Collection::get(QByteArray key, const QByteArray &defaultValue)
         auto ret = mdb_txn_begin(
                     d->database->environment,
                     nullptr,
-                    0,
+                    MDB_RDONLY,
                     &txn);
         if (ret == 0) {
             MDB_dbi dbi;
@@ -221,9 +223,56 @@ QByteArray Collection::get(QByteArray key, const QByteArray &defaultValue)
  * rather use get() instead. This method is only usefule if the
  * collection has been opened with the Collection::MultiValues option.
  */
-QByteArrayList Collection::getAll(const QByteArray &key)
+QByteArrayList Collection::getAll(QByteArray key)
 {
-    return QByteArrayList();
+    QByteArrayList result;
+    bool ok = false;
+    Q_D(Collection);
+    if (!d->database.isNull()) {
+        MDB_txn *txn = nullptr;
+        auto ret = mdb_txn_begin(
+                    d->database->environment,
+                    nullptr,
+                    MDB_RDONLY,
+                    &txn);
+        if (ret == 0) {
+            MDB_dbi dbi;
+            const char *name = nullptr;
+            if (!d->name.isNull()) {
+                name = d->name.constData();
+            }
+            unsigned int flags = MDB_CREATE;
+            if (d->openMode.testFlag(MultiValues)) {
+                flags |= MDB_DUPSORT;
+            }
+            ret = mdb_dbi_open(txn, name, flags, &dbi);
+            if (ret == 0) {
+                MDB_cursor *cursor;
+                ret = mdb_cursor_open(txn, dbi, &cursor);
+                if (ret == 0) {
+                    ok = true;
+                    MDB_val k, v;
+                    k.mv_size = static_cast<size_t>(key.size());
+                    k.mv_data = key.data();
+                    ret = mdb_cursor_get(
+                                cursor, &k, &v, MDB_SET_KEY);
+                    while (ret == 0) {
+                        QByteArray value(static_cast<const char*>(v.mv_data),
+                                         static_cast<int>(v.mv_size));
+                        result << value;
+                        ret = mdb_cursor_get(cursor, &k, &v, MDB_NEXT_DUP);
+                    }
+                    mdb_cursor_close(cursor);
+                }
+            }
+            if (ok) {
+                mdb_txn_commit(txn);
+            } else {
+                mdb_txn_abort(txn);
+            }
+        }
+    }
+    return result;
 }
 
 void Collection::setName(const QByteArray &name)

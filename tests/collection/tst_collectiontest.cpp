@@ -29,8 +29,8 @@ public:
     CollectionTest();
 
 private Q_SLOTS:
-    void initTestCase();
-    void cleanupTestCase();
+    void init();
+    void cleanup();
     void defaultConstructor();
     void collectionFromDatabase();
     void put();
@@ -45,12 +45,12 @@ CollectionTest::CollectionTest()
 {
 }
 
-void CollectionTest::initTestCase()
+void CollectionTest::init()
 {
     tempDir = new QTemporaryDir();
 }
 
-void CollectionTest::cleanupTestCase()
+void CollectionTest::cleanup()
 {
     delete tempDir;
 }

@@ -79,7 +79,7 @@ public:
     bool put(QByteArray key, QByteArray value);
     QByteArray get(QByteArray key,
                    const QByteArray &defaultValue = QByteArray());
-    QByteArrayList getAll(const QByteArray &key);
+    QByteArrayList getAll(QByteArray key);
 
 private:
     QSharedPointer<CollectionPrivate> d_ptr;
