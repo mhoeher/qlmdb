@@ -26,7 +26,8 @@ DatabasePrivate::DatabasePrivate() :
     directory(),
     lastErrorString(),
     environment(nullptr),
-    maxTables(Database::DefaultMaxTables)
+    maxTables(Database::DefaultMaxTables),
+    maxDatabaseSize(Database::DefaultMaxDatabaseSize)
 {
 
 }
@@ -48,6 +49,12 @@ bool DatabasePrivate::createEnvironment()
     ret = mdb_env_set_maxdbs(environment, static_cast<MDB_dbi>(maxTables));
     if (ret != 0) {
         lastErrorString = "Failed to set number of maximum named tables";
+        mdb_env_close(environment);
+        return false;
+    }
+    ret = mdb_env_set_mapsize(environment, maxDatabaseSize);
+    if (ret != 0) {
+        lastErrorString = "Failed to set maximum database size";
         mdb_env_close(environment);
         return false;
     }

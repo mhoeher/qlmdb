@@ -37,6 +37,7 @@ public:
     MDB_env *environment;
 
     int maxTables;
+    size_t maxDatabaseSize;
 
     explicit DatabasePrivate();
     virtual ~DatabasePrivate();

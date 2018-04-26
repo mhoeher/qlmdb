@@ -41,6 +41,7 @@ class QLMDBSHARED_EXPORT Database
 {
 public:
     static const int DefaultMaxTables = 100;
+    static const size_t DefaultMaxDatabaseSize = 1073741824;
 
     explicit Database();
     Database(const Database &other);
@@ -55,6 +56,9 @@ public:
 
     int maxTables() const;
     void setMaxTables(int maxTables);
+
+    size_t maxDatabaseSize() const;
+    void setMaxDatabaseSize(size_t size);
 
     bool open();
     bool open(const QString& directory);

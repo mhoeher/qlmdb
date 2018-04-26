@@ -36,6 +36,14 @@ const int Database::DefaultMaxTables;
 
 
 /**
+ * @brief The default maximum database size.
+ *
+ * This value is the default maximum size of a database in Bytes.
+ */
+const size_t Database::DefaultMaxDatabaseSize;
+
+
+/**
  * @brief Constructor.
  *
  * Creates a new database. Initially, a database is closed and must be
@@ -160,6 +168,43 @@ void Database::setMaxTables(int maxTables)
                              "to 0";
     } else {
         d->maxTables = maxTables;
+    }
+}
+
+
+/**
+ * @brief The maximum database size in bytes.
+ *
+ * This property holds the maximum database size in bytes. The default
+ * value is Database::DefaultMaxDatabaseSize.
+ *
+ * This property must be set before calling open() to open the database.
+ * Note that the set space will not be occupied immediately. Instead, the
+ * database will grow over time until it reaches the given maximum
+ * value.
+ *
+ * Note that the size can be increased, which requires the current Database
+ * to be closed and a new instance to be opened with the increased size being
+ * set before calling open().
+ */
+size_t Database::maxDatabaseSize() const
+{
+    const Q_D(Database);
+    return d->maxDatabaseSize;
+}
+
+
+/**
+ * @brief Set the maximum database @p size in bytes.
+ */
+void Database::setMaxDatabaseSize(size_t size)
+{
+    Q_D(Database);
+    if (isOpen()) {
+        d->lastErrorString = "Cannot change Database::maxDatabaseSize() of "
+                             "open database";
+    } else {
+        d->maxDatabaseSize = size;
     }
 }
 
