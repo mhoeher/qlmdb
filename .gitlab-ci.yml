@@ -2,9 +2,29 @@ fedora:
     stage: build
     image: fedora
     script:
-        - yum install -y gcc gcc-c++ make qt5-qtbase-devel
+        - dnf install -y gcc gcc-c++ make qt5-qtbase-devel
         - mkdir -p build/fedora
         - cd build/fedora
         - qmake-qt5 ../..
         - make -j4
         - make check
+
+
+pages:
+    stage: build
+    image: fedora
+    script:
+        - dnf install -y doxygen
+        - doxygen
+        - mv doc/html .
+    artifacts:
+        paths:
+            - public
+
+
+fedora:
+    stage: build
+    image: fedora
+    script:
+        - dnf install -y cppcheck
+        - cppcheck  --enable=all --error-exitcode=1 qlmdb/ tests/

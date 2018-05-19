@@ -99,18 +99,18 @@ bool Collection::isValid() const
  * one value stored per key. Calling this function twice using the same
  * key hence overrides the previously stored value:
  *
- * @code
+ * ```
  * collection.insert("foo", "test"); // "foo" now has the value "test"
  * collection.insert("foo", "changed"); // "foo" now has the value "changed"
- * @endcode
+ * ```
  *
  * If the Collection has been opened using the Collection::MultiValues
  * option, each insert will add the value to the key:
  *
- * @code
+ * ```
  * collection.insert("foo", "1st"); // "foo" is now {"1st"}
  * collection.insert("foo", "2nd"); // "foo" is now {"1st", "2nd"}
- * @code
+ * ```
  */
 bool Collection::put(QByteArray key, QByteArray value)
 {

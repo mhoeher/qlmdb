@@ -26,6 +26,9 @@ namespace QLMDB {
 
 class Database;
 
+/**
+ * @private
+ */
 class DatabasePrivate : public QSharedData
 {
 public:

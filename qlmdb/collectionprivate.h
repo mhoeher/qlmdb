@@ -25,6 +25,9 @@
 
 namespace QLMDB {
 
+/**
+ * @private
+ */
 class CollectionPrivate
 {
 public:

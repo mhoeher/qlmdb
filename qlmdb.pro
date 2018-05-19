@@ -7,4 +7,6 @@ tests.depends += qlmdb
 
 OTHER_FILES += \
     .gitlab-ci.yml \
-    $$files(templates/*)
+    $$files(templates/*) \
+    Doxyfile \
+    README.md

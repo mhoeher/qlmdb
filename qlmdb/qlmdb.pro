@@ -26,14 +26,18 @@ SOURCES += \
     database.cpp \
     databaseprivate.cpp \
     collection.cpp \
-    collectionprivate.cpp
+    collectionprivate.cpp \
+    core/context.cpp \
+    core/contextprivate.cpp
 
 HEADERS += \
     database.h \
     qlmdb_global.h \
     databaseprivate.h \
     collection.h \
-    collectionprivate.h
+    collectionprivate.h \
+    core/context.h \
+    core/contextprivate.h
 
 # Add LMDB library:
 INCLUDEPATH += ../3rdparty
