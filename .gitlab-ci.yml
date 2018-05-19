@@ -22,7 +22,7 @@ pages:
             - public
 
 
-fedora:
+cppcheck:
     stage: build
     image: fedora
     script:
