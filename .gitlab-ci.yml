@@ -12,7 +12,15 @@ pages:
         - ./bin/ci/doxygen.sh
     artifacts:
         paths:
-            - html
+            - public
+    only: master
+
+doxygen:
+    stage: build
+    image: fedora
+    script:
+        - ./bin/ci/doxygen.sh
+    except: master
 
 
 cppcheck:

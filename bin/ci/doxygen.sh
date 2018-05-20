@@ -14,5 +14,6 @@ fi
 doxygen
 
 if [ -n "$CI" ]; then
-    mv doc/html .
+    mkdir public
+    cp -r doc/html/* public
 fi
