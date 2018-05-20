@@ -28,7 +28,7 @@ sudo make install
 The following configuration option can be passed to the `CONFIG` variable to
 customize the build:
 
-* `WITH_BUILTIN_LMDB`: If this option is set, the library will be build
+* `qlmdb_with_builtin_lmdb`: If this option is set, the library will be build
   against a built-in version of the LMDB C library.
-* `WITH_STATIC_LIBS`: If this option is given, the library is built as
+* `qlmdb_with_static_libs`: If this option is given, the library is built as
   a static library.

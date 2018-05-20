@@ -11,6 +11,12 @@ TEMPLATE = lib
 
 DEFINES += QLMDB_LIBRARY
 
+CONFIG *= create_prl
+
+qlmdb_with_static_libs {
+    CONFIG += static
+}
+
 # The following define makes your compiler emit warnings if you use
 # any feature of Qt which has been marked as deprecated (the exact warnings
 # depend on your compiler). Please consult the documentation of the
@@ -30,25 +36,45 @@ SOURCES += \
     core/context.cpp \
     core/contextprivate.cpp
 
-HEADERS += \
+PUBLIC_CORE_HEADERS = \
+    core/context.h \
+
+PUBLIC_HEADERS = \
     database.h \
     qlmdb_global.h \
-    databaseprivate.h \
     collection.h \
-    collectionprivate.h \
-    core/context.h \
-    core/contextprivate.h
 
-# Add LMDB library:
-INCLUDEPATH += ../3rdparty
-SOURCES += \
-    ../3rdparty/liblmdb/mdb.c \
-    ../3rdparty/liblmdb/midl.c
-HEADERS += \
-    ../3rdparty/liblmdb/lmdb.h \
-    ../3rdparty/liblmdb/midl.h
+PRIVATE_HEADERS = \
+    databaseprivate.h \
+    collectionprivate.h \
+    core/contextprivate.h \
+
+HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS $$PUBLIC_CORE_HEADERS
+
+
+qlmdb_with_builtin_lmdb {
+    # Use built-in version of LMDB
+    INCLUDEPATH += ../3rdparty/liblmdb
+    SOURCES += \
+        ../3rdparty/liblmdb/mdb.c \
+        ../3rdparty/liblmdb/midl.c
+    HEADERS += \
+        ../3rdparty/liblmdb/lmdb.h \
+        ../3rdparty/liblmdb/midl.h
+} else {
+    # Use system LMDB
+    LIBS += -llmdb
+}
 
 unix {
-    target.path = /usr/lib
+    target.path = $$[QT_INSTALL_LIBS]
     INSTALLS += target
+
+    headers.files = $$PUBLIC_HEADERS
+    headers.path = $$[QT_INSTALL_HEADERS]/qlmdb
+
+    core_headers.files = $$PUBLIC_CORE_HEADERS
+    core_headers.path = $$[QT_INSTALL_HEADERS]/qlmdb/core
+
+    INSTALLS += headers core_headers
 }

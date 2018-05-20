@@ -5,6 +5,20 @@ fedora:
         - ./bin/ci/build-and-test.sh
 
 
+fedora-static:
+    stage: build
+    image: fedora
+    script:
+        - ./bin/ci/build-and-test-static.sh
+
+
+fedora-buitlin-lmdb:
+    stage: build
+    image: fedora
+    script:
+        - ./bin/ci/build-and-test-builtin-lmdb.sh
+
+
 pages:
     stage: build
     image: fedora

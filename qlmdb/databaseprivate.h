@@ -17,7 +17,7 @@
 #ifndef DATABASEPRIVATE_H
 #define DATABASEPRIVATE_H
 
-#include "liblmdb/lmdb.h"
+#include "lmdb.h"
 
 #include <QSharedData>
 #include <QString>
