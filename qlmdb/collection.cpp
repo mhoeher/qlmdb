@@ -173,7 +173,6 @@ bool Collection::put(QByteArray key, QByteArray value)
 QByteArray Collection::get(QByteArray key, const QByteArray &defaultValue)
 {
     QByteArray result = defaultValue;
-    bool ok = false;
     Q_D(Collection);
     if (!d->database.isNull()) {
         MDB_txn *txn = nullptr;
@@ -183,6 +182,7 @@ QByteArray Collection::get(QByteArray key, const QByteArray &defaultValue)
                     MDB_RDONLY,
                     &txn);
         if (ret == 0) {
+            bool ok = false;
             MDB_dbi dbi;
             const char *name = nullptr;
             if (!d->name.isNull()) {
@@ -226,7 +226,6 @@ QByteArray Collection::get(QByteArray key, const QByteArray &defaultValue)
 QByteArrayList Collection::getAll(QByteArray key)
 {
     QByteArrayList result;
-    bool ok = false;
     Q_D(Collection);
     if (!d->database.isNull()) {
         MDB_txn *txn = nullptr;
@@ -236,6 +235,7 @@ QByteArrayList Collection::getAll(QByteArray key)
                     MDB_RDONLY,
                     &txn);
         if (ret == 0) {
+            bool ok = false;
             MDB_dbi dbi;
             const char *name = nullptr;
             if (!d->name.isNull()) {

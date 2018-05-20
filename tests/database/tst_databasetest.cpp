@@ -39,7 +39,8 @@ private:
     QTemporaryDir *tempDir;
 };
 
-DatabaseTest::DatabaseTest()
+DatabaseTest::DatabaseTest() : QObject(),
+    tempDir()
 {
 }
 

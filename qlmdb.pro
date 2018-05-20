@@ -9,4 +9,6 @@ OTHER_FILES += \
     .gitlab-ci.yml \
     $$files(templates/*) \
     Doxyfile \
-    README.md
+    README.md \
+    $$files(bin/ci/*.sh) \
+    $$files(bin/*)

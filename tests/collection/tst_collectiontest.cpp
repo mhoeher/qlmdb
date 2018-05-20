@@ -41,7 +41,8 @@ private:
     QTemporaryDir *tempDir;
 };
 
-CollectionTest::CollectionTest()
+CollectionTest::CollectionTest() : QObject(),
+    tempDir()
 {
 }
 
