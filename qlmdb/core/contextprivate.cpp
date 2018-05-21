@@ -12,7 +12,11 @@ ContextPrivate::ContextPrivate() :
     lastErrorString(),
     path(),
     flags(0),
-    mode(0)
+    mode(0),
+    maxDBs(0),
+    maxReaders(0),
+    mapSize(0),
+    open(false)
 {
     lastError = mdb_env_create(&env);
     if (lastError != 0) {

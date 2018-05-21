@@ -94,7 +94,7 @@ const unsigned int Context::NoReadAhead = MDB_NORDAHEAD;
  */
 const unsigned int Context::NoMemInit = MDB_NOMEMINIT;
 
-/** } */
+/** @} */
 
 
 /**
@@ -234,6 +234,144 @@ void Context::setMode(unsigned int mode)
 {
     Q_D(Context);
     d->mode = mode;
+}
+
+
+/**
+ * @brief The maximum number of named databases allowed in the context.
+ *
+ * This property holds the maximum number of named databased allowed
+ * within a context. Very simple applications needing only a single
+ * key-value table can avoid setting this. More complex applications
+ * might set this to a value greater than zero to allow using
+ * multiple named databases.
+ *
+ * Note that choosing a very high number for this can decrease
+ * performance.
+ *
+ * By default, this property is set to 0, which means the default
+ * value is used.
+ */
+unsigned int Context::maxDBs() const
+{
+    const Q_D(Context);
+    return d->maxDBs;
+}
+
+
+/**
+ * @brief Set the @p maxDBs allowed within a context.
+ */
+void Context::setMaxDBs(unsigned int maxDBs)
+{
+    Q_D(Context);
+    d->maxDBs = maxDBs;
+}
+
+
+/**
+ * @brief The maximum number of readers allowed in the environment.
+ *
+ * This property holds the maximum number of readers allowed in
+ * the environment.
+ *
+ * Setting it to 0 uses a default value (usually 126) of the underlying
+ * library.
+ */
+unsigned int Context::maxReaders() const
+{
+    const Q_D(Context);
+    unsigned int result = d->maxReaders;
+    if (d->open) {
+        if (mdb_env_get_maxreaders(d->env, &result) != 0) {
+            result = 0;
+        }
+    }
+    return result;
+}
+
+
+/**
+ * @brief Set the @p maxReaders of the environment.
+ */
+void Context::setMaxReaders(unsigned int maxReaders)
+{
+    Q_D(Context);
+    d->maxReaders = maxReaders;
+}
+
+
+/**
+ * @brief The map size of the environment.
+ *
+ * This property holds the map size of the environment in
+ * bytes. This size also is the maximum size of data the
+ * environment can hold, so if a database grows over time,
+ * it might become necessary to re-open it with a larger map
+ * size.
+ *
+ * Settings this value to 0 causes the environment to be
+ * opened with the default map size (usually 10 MByte) or
+ * the previously used map size.
+ */
+size_t Context::mapSize() const
+{
+    const Q_D(Context);
+    return d->mapSize;
+}
+
+
+/**
+ * @brief Set the @p mapSize of the context.
+ */
+void Context::setMapSize(size_t mapSize)
+{
+    Q_D(Context);
+    d->mapSize = mapSize;
+}
+
+
+/**
+ * @brief Indicates if the environment is open.
+ *
+ * This property indicates if the environment has been opened.
+ */
+bool Context::isOpen() const
+{
+    const Q_D(Context);
+    return d->open;
+}
+
+
+/**
+ * @brief Open the environment.
+ *
+ * This opens the environment specified by the given path(). The
+ * environment is opened using the configured flags(), mode(),
+ * maxDBs(), maxReaders() and mapSize().
+ *
+ * If opening suceeds, this method returns true and calling isOpen() on
+ * the Context should return true afterwards as well. Otherwise, this method
+ * returns false. In this case, use lastError() and lastErrorString() to
+ * find out why opening failed.
+ */
+bool Context::open()
+{
+    Q_D(Context);
+    bool result = false;
+    if (!d->open) {
+        auto env = d->env;
+        if (env != nullptr) {
+            if (d->setMapSize() &&
+                    d->setMaxDBs() &&
+                    d->setMaxReaders() &&
+                    d->openEnv()) {
+                d->open = true;
+                result = true;
+            }
+        }
+    }
+    return result;
 }
 
 } // namespace Core

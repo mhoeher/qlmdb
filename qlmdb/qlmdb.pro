@@ -39,6 +39,7 @@ SOURCES += \
 
 PUBLIC_CORE_HEADERS = \
     core/context.h \
+    core/errors.h
 
 PUBLIC_HEADERS = \
     database.h \
@@ -50,8 +51,7 @@ PRIVATE_HEADERS = \
     collectionprivate.h \
     core/contextprivate.h \
 
-HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS $$PUBLIC_CORE_HEADERS \
-    core/errors.h
+HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS $$PUBLIC_CORE_HEADERS
 
 
 qlmdb_with_builtin_lmdb {

@@ -4,13 +4,15 @@
 #include <QtGlobal>
 #include <QScopedPointer>
 
+#include "qlmdb_global.h"
+
 
 namespace QLMDB {
 namespace Core {
 
 class ContextPrivate;
 
-class Context
+class QLMDBSHARED_EXPORT Context
 {
 public:
     static const unsigned int FixedMap;
@@ -39,6 +41,18 @@ public:
 
     unsigned int mode() const;
     void setMode(unsigned int mode);
+
+    unsigned int maxDBs() const;
+    void setMaxDBs(unsigned int maxDBs);
+
+    unsigned int maxReaders() const;
+    void setMaxReaders(unsigned int maxReaders);
+
+    size_t mapSize() const;
+    void setMapSize(size_t mapSize);
+
+    bool isOpen() const;
+    bool open();
 
 private:
 

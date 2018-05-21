@@ -1,6 +1,7 @@
 #include "errors.h"
 
 #include "lmdb.h"
+#include "cerrno"
 
 /**
  * @brief Error codes.
@@ -146,4 +147,37 @@ const int BadValueSize = MDB_BAD_VALSIZE;
  * @brief The specified DBI has changed unexpectedly.
  */
 const int BadDBI = MDB_BAD_DBI;
+
+
+/**
+ * @brief An invalid parameter has been specified.
+ *
+ * This error is used to indicate that an invalid parameter has been
+ * passed to a function or calling a function is not allowed on some object
+ * in the current state (e.g. setting map size or max readers on an
+ * already opened context).
+ */
+const int InvalidParameter = EINVAL;
+
+
+/**
+ * @brief A path (e.g. file or directory name) is invalid.
+ */
+const int InvalidPath = ENOENT;
+
+
+/**
+ * @brief The user has no access to a given file or directory).
+ */
+const int NoAccessToPath = EACCES;
+
+
+/**
+ * @brief A resource is temporarily not available.
+ *
+ * This might be caused by another application locking a shared
+ * resource.
+ */
+const int TemporarilyNotAvailable = EAGAIN;
+
 }
