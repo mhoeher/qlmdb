@@ -8,7 +8,7 @@ cd ..
 cd ..
 
 if [ -n "$CI" ]; then
-    dnf install -y gcc gcc-c++ make qt5-qtbase-devel
+    dnf install -y gcc gcc-c++ make qt5-qtbase-devel lmdb-devel
 fi
 
 mkdir -p build/fedora-static
