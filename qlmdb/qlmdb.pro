@@ -35,11 +35,14 @@ SOURCES += \
     collectionprivate.cpp \
     core/context.cpp \
     core/contextprivate.cpp \
-    core/errors.cpp
+    core/errors.cpp \
+    core/transaction.cpp \
+    core/transactionprivate.cpp \
 
 PUBLIC_CORE_HEADERS = \
     core/context.h \
-    core/errors.h
+    core/errors.h \
+    core/transaction.h \
 
 PUBLIC_HEADERS = \
     database.h \
@@ -50,6 +53,7 @@ PRIVATE_HEADERS = \
     databaseprivate.h \
     collectionprivate.h \
     core/contextprivate.h \
+    core/transactionprivate.h \
 
 HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS $$PUBLIC_CORE_HEADERS
 

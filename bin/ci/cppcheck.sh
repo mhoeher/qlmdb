@@ -15,4 +15,5 @@ cppcheck  \
     --enable=warning,style,performance,portability,missingInclude \
     --error-exitcode=1 \
     --inline-suppr \
+    --template='{file}:{line} {severity} "{id}": {message}' \
     qlmdb/ tests/

@@ -3,6 +3,8 @@
 
 #include "qlmdb_global.h"
 
+namespace QLMDB {
+namespace Core {
 namespace Errors
 {
     // LMDB Specific Error Codes:
@@ -33,7 +35,12 @@ namespace Errors
     extern QLMDBSHARED_EXPORT const int InvalidPath;
     extern QLMDBSHARED_EXPORT const int NoAccessToPath;
     extern QLMDBSHARED_EXPORT const int TemporarilyNotAvailable;
+    extern QLMDBSHARED_EXPORT const int OutOfMemory;
+    extern QLMDBSHARED_EXPORT const int OutOfDiskSpace;
+    extern QLMDBSHARED_EXPORT const int IOError;
 
+}
+}
 }
 
 #endif // ERRORS_H

@@ -12,9 +12,13 @@
 namespace QLMDB {
 namespace Core {
 
+class Transaction;
+
 //! @private
 class ContextPrivate
 {
+    friend class Transaction;
+
 public:
     ContextPrivate();
     virtual ~ContextPrivate();

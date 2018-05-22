@@ -3,6 +3,9 @@
 #include "lmdb.h"
 #include "cerrno"
 
+namespace QLMDB {
+namespace Core {
+
 /**
  * @brief Error codes.
  *
@@ -180,4 +183,24 @@ const int NoAccessToPath = EACCES;
  */
 const int TemporarilyNotAvailable = EAGAIN;
 
+
+/**
+ * @brief There is no free memory available to allocate further resources.
+ */
+const int OutOfMemory = ENOMEM;
+
+
+/**
+ * @brief No more space on disk available.
+ */
+const int OutOfDiskSpace = ENOSPC;
+
+
+/**
+ * @brief Low-level I/O error.
+ */
+const int IOError = EIO;
+
+}
+}
 }

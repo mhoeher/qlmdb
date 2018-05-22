@@ -11,9 +11,11 @@ namespace QLMDB {
 namespace Core {
 
 class ContextPrivate;
+class Transaction;
 
 class QLMDBSHARED_EXPORT Context
 {
+    friend class Transaction;
 public:
     static const unsigned int FixedMap;
     static const unsigned int NoSubDir;
