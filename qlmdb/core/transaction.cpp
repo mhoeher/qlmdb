@@ -19,7 +19,7 @@ namespace Core {
  *
  * Transactions are created from an opened Context:
  *
- * ```c++
+ * ```
  * Context ctx;
  * ctx.setPath("/tmp/my_ctx/");
  * if (ctx.open()) {
@@ -32,7 +32,7 @@ namespace Core {
  *
  * Alternatively, a transaction can be nested to another one:
  *
- * ```c++
+ * ```
  * Context ctx;
  * ctx.setPath("/tmp/my_ctx/");
  * if (ctx.open()) {
