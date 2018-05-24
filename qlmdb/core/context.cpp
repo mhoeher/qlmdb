@@ -122,6 +122,14 @@ Context::Context() :
 
 
 /**
+ * @brief Destructor.
+ */
+Context::~Context()
+{
+}
+
+
+/**
  * @brief Get the code of the last error that happened.
  *
  * @sa QLMDB::Core::Errors
@@ -218,7 +226,7 @@ void Context::setFlags(unsigned int flags)
  * @brief The UNIX file permissions to use for created files.
  *
  * This property is only used on UNIX operating systems. On Windows,
- * it has no affect. The default value is 0.
+ * it has no affect. The default value is 0644.
  */
 unsigned int Context::mode() const
 {

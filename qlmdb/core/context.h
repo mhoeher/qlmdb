@@ -30,6 +30,7 @@ public:
     static const unsigned int NoMemInit;
 
     Context();
+    virtual ~Context();
 
     int lastError() const;
     QString lastErrorString() const;

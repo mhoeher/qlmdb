@@ -12,7 +12,7 @@ ContextPrivate::ContextPrivate() :
     lastErrorString(),
     path(),
     flags(0),
-    mode(0),
+    mode(0644),
     maxDBs(0),
     maxReaders(0),
     mapSize(0),

@@ -21,7 +21,7 @@ class ContextPrivate
 
 public:
     ContextPrivate();
-    virtual ~ContextPrivate();
+    ~ContextPrivate();
 
     MDB_env *env;
     int lastError;
@@ -41,8 +41,8 @@ public:
     }
 
     inline bool setMapSize() {
-        bool result = false;
-        if (mapSize > 0) {
+        bool result = mapSize == 0;
+        if (!result) {
             lastError = mdb_env_set_mapsize(env, mapSize);
             if (lastError == 0) {
                 lastErrorString.clear();
@@ -58,8 +58,8 @@ public:
     }
 
     inline bool setMaxDBs() {
-        bool result = false;
-        if (maxDBs > 0) {
+        bool result = maxDBs == 0;
+        if (!result) {
             lastError = mdb_env_set_maxdbs(env, maxDBs);
             if (lastError == 0) {
                 lastErrorString.clear();
@@ -76,8 +76,8 @@ public:
     }
 
     inline bool setMaxReaders() {
-        bool result = false;
-        if (maxReaders > 0) {
+        bool result = maxReaders == 0;
+        if (!result) {
             lastError = mdb_env_set_maxreaders(env, maxReaders);
             if (lastError == 0) {
                 lastErrorString.clear();

@@ -2,4 +2,6 @@ TEMPLATE = subdirs
 
 SUBDIRS += \
     database \
-    collection
+    collection \
+    core_context \
+    core_transaction
