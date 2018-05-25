@@ -29,20 +29,19 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    database.cpp \
-    databaseprivate.cpp \
-    collection.cpp \
-    collectionprivate.cpp \
     core/context.cpp \
     core/contextprivate.cpp \
     core/errors.cpp \
     core/transaction.cpp \
     core/transactionprivate.cpp \
+    core/database.cpp \
+    core/databaseprivate.cpp \
 
 PUBLIC_CORE_HEADERS = \
     core/context.h \
     core/errors.h \
     core/transaction.h \
+    core/database.h \
 
 PUBLIC_HEADERS = \
     database.h \
@@ -54,6 +53,7 @@ PRIVATE_HEADERS = \
     collectionprivate.h \
     core/contextprivate.h \
     core/transactionprivate.h \
+    core/databaseprivate.h
 
 HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS $$PUBLIC_CORE_HEADERS
 

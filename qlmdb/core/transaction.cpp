@@ -1,3 +1,19 @@
+/*
+ * This file is part of QLMDB.
+ *
+ * QLMDB is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as
+ * published by the Free Software Foundation, either version 3 of
+ * the License, or (at your option) any later version.
+ *
+ * QLMDB is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ */
 #include "transaction.h"
 #include "transactionprivate.h"
 #include "context.h"
@@ -40,6 +56,16 @@ namespace Core {
  *     Transaction childTxn(parentTxn);
  * }
  * ```
+ *
+ *
+ * ## Notes About Multi-Threading
+ *
+ * A transaction (and any Cursor created in it) must only be used by one
+ * thread, i.e. do not create a Transaction in one thread and use it
+ * in another one.
+ *
+ * Additionally, every thread must have at most one active transaction
+ * at a time.
  */
 
 

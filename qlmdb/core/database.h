@@ -14,49 +14,52 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TRANSACTION_H
-#define TRANSACTION_H
+#ifndef DATABASE_H
+#define DATABASE_H
 
 #include <QScopedPointer>
-#include <QtGlobal>
+#include <QString>
 
 namespace QLMDB {
 namespace Core {
 
-class Context;
-class Database;
-class TransactionPrivate;
 class DatabasePrivate;
+class Context;
+class Transaction;
 
-class Transaction
+class Database
 {
-    friend class Database;
-    friend class DatabasePrivate;
 public:
-    static const unsigned int ReadOnly;
+    static const unsigned int ReverseKey;
+    static const unsigned int MultiValues;
+    static const unsigned int IntegerKeys;
+    static const unsigned int FixedSizeMultiValues;
+    static const unsigned int IntegerKeysMultiValues;
+    static const unsigned int ReverseKeyMultiValues;
+    static const unsigned int Create;
 
-    explicit Transaction(Context &context, unsigned int flags = 0);
-    explicit Transaction(Transaction &parent, unsigned int flags = 0);
-    virtual ~Transaction();
-
-    Transaction& operator =(const Transaction &other) = delete;
+    Database(Context &context,
+             const QString &name = QString(),
+             unsigned int flags = Create);
+    Database(Transaction &transaction,
+             const QString &name = QString(),
+             unsigned int flags = Create);
+    virtual ~Database();
 
     bool isValid() const;
     int lastError() const;
     QString lastErrorString() const;
-
-    bool commit();
-    bool abort();
+    void clearLastError();
 
 
 private:
-    QScopedPointer<TransactionPrivate> d_ptr;
 
-    Q_DECLARE_PRIVATE(Transaction)
+    QScopedPointer<DatabasePrivate> d_ptr;
+    Q_DECLARE_PRIVATE(Database)
 
 };
 
 } // namespace Core
 } // namespace QLMDB
 
-#endif // TRANSACTION_H
+#endif // DATABASE_H
