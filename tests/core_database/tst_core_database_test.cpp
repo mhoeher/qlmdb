@@ -50,6 +50,29 @@ void Core_Database_Test::fromContext()
     ctx.setMaxDBs(10);
     QVERIFY(ctx.open());
 
+    Database defaultDB(ctx);
+    QVERIFY(defaultDB.isValid());
+    QCOMPARE(defaultDB.lastError(), Errors::NoError);
+    QCOMPARE(defaultDB.lastErrorString(), QString());
+
+    Database testDB(ctx, "test");
+    QVERIFY(testDB.isValid());
+    QCOMPARE(testDB.lastError(), Errors::NoError);
+    QCOMPARE(testDB.lastErrorString(), QString());
+
+    Database nonExistingDB(ctx, "nonExisting", 0);
+    QVERIFY(!nonExistingDB.isValid());
+    QCOMPARE(nonExistingDB.lastError(), Errors::NotFound);
+    QVERIFY(!nonExistingDB.lastErrorString().isEmpty());
+}
+
+void Core_Database_Test::fromTransaction()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(10);
+    QVERIFY(ctx.open());
+
     Transaction txn(ctx);
 
     Database defaultDB(txn);
@@ -62,6 +85,11 @@ void Core_Database_Test::fromContext()
     QCOMPARE(testDB.lastError(), Errors::NoError);
     QCOMPARE(testDB.lastErrorString(), QString());
 
+    Database nonExistingDB(txn, "nonExisting", 0);
+    QVERIFY(!nonExistingDB.isValid());
+    QCOMPARE(nonExistingDB.lastError(), Errors::NotFound);
+    QVERIFY(!nonExistingDB.lastErrorString().isEmpty());
+
     Context foo;
     Transaction fooTxn(foo);
     Database invalidDB(fooTxn);
@@ -69,11 +97,6 @@ void Core_Database_Test::fromContext()
     // Note: DB in invalid context: Not valid but no error either!
     QCOMPARE(invalidDB.lastError(), Errors::NoError);
     QCOMPARE(invalidDB.lastErrorString(), QString());
-}
-
-void Core_Database_Test::fromTransaction()
-{
-
 }
 
 QTEST_APPLESS_MAIN(Core_Database_Test)
