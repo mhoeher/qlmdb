@@ -23,7 +23,7 @@ namespace QLMDB {
 namespace Core {
 
 DatabasePrivate::DatabasePrivate() :
-    env(nullptr),
+    context(nullptr),
     db(),
     lastError(Errors::NoError),
     lastErrorString(),
@@ -53,7 +53,7 @@ void DatabasePrivate::initFromContext(Context &context, Transaction *txn,
                             tmpTxn.d_ptr->txn, dbName, flags, &db);
             }
             valid = evaluateCreateError(name);
-            env = context.d_ptr->env;
+            this->context = &context;
         }
     }
 }

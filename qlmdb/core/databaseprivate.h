@@ -33,13 +33,14 @@ class DatabasePrivate
 public:
     DatabasePrivate();
 
-    MDB_env *env;
+    Context *context;
     MDB_dbi db;
     int lastError;
     QString lastErrorString;
     bool valid;
 
-    void initFromContext(Context &context, Transaction *txn, const QString &name,
+    void initFromContext(Context &context, Transaction *txn,
+                         const QString &name,
                          unsigned int flags);
     bool evaluateCreateError(const QString &name);
 };

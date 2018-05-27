@@ -208,7 +208,7 @@ Database::~Database()
 {
     Q_D(Database);
     if (d->valid) {
-        mdb_dbi_close(d->env, d->db);
+        mdb_dbi_close(d->context->d_ptr->env, d->db);
     }
 }
 
@@ -262,6 +262,201 @@ void Database::clearLastError()
     Q_D(Database);
     d->lastError = Errors::NoError;
     d->lastErrorString.clear();
+}
+
+
+/**
+ * @brief Insert the @p key - @p value pair into the database.
+ *
+ * This method adds the value using the given key into the database. If the
+ * database allows multiple values, calling this method several times
+ * with the same key will add a new value on each call. Otherwise, the
+ * existing value is replaced by the new value.
+ *
+ * If the operation was successfull, the method returns true. On errors,
+ * it returns false.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+bool Database::put(const QByteArray &key, const QByteArray &value)
+{
+    Q_D(Database);
+    bool result = false;
+    if (d->context != nullptr) {
+        Transaction txn(*d->context);
+        result = put(txn, key, value);
+    }
+    return result;
+}
+
+
+/**
+ * @brief Insert the @p key - @p value pair into the database.
+ *
+ * This is an overloaded version of put() which accepts a @p transaction
+ * to run the operation in. The transaction must not be read-only.
+ */
+bool Database::put(const Transaction &transaction, const QByteArray &key,
+                   const QByteArray &value)
+{
+    Q_UNUSED(transaction);
+    Q_UNUSED(key);
+    Q_UNUSED(value);
+    return false;
+}
+
+
+/**
+ * @brief Get the value for the given @p key from the database.
+ *
+ * This method looks up the @p key from the database and returns the
+ * associated value for it. If the key is not present in the database,
+ * this method returns a null QByteArray.
+ *
+ * If the database is configured to allow multiple values, only the first
+ * value is returned. Use getAll() to get all values.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+QByteArray Database::get(const QByteArray &key)
+{
+    Q_D(Database);
+    QByteArray result;
+    if (d->context != nullptr) {
+        Transaction txn(*d->context, Transaction::ReadOnly);
+        result = get(txn, key);
+    }
+    return result;
+}
+
+
+/**
+ * @brief Get the value for the given @p key from the database.
+ *
+ * This is an overloaded version of the get() method. It retrieves the
+ * value using the given @p transaction.
+ */
+QByteArray Database::get(const Transaction &transaction, const QByteArray &key)
+{
+    Q_UNUSED(transaction);
+    Q_UNUSED(key);
+    return QByteArray();
+}
+
+
+/**
+ * @brief Get all values for the given @p key from the database.
+ *
+ * This method returns all values saved under the given key in the database.
+ * Use this method if the database has been configured to allow multiple
+ * values per key.
+ *
+ * If the key is not found in the database or an error occurred, an empty
+ * list is returned.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+QByteArrayList Database::getAll(const QByteArray &key)
+{
+    Q_D(Database);
+    QByteArrayList result;
+    if (d->context != nullptr) {
+        Transaction txn(*d->context, Transaction::ReadOnly);
+        result = getAll(txn, key);
+    }
+    return result;
+}
+
+
+/**
+ * @brief Get all values for the given @p key from the database.
+ *
+ * This is an overloaded version of getAll(). It runs the operation in
+ * the given @p Transaction.
+ */
+QByteArrayList Database::getAll(const Transaction &transaction,
+                                const QByteArray &key)
+{
+    Q_UNUSED(transaction);
+    Q_UNUSED(key);
+    return QByteArrayList();
+}
+
+
+/**
+ * @brief Remove all values for the given @p key.
+ *
+ * This removes all values stored under the given key in the database.
+ * If at least one value was deleted, the method returns true. If no value
+ * was deleted or an error occurred, this method returns false.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+bool Database::remove(const QByteArray &key)
+{
+    Q_D(Database);
+    bool result = false;
+    if (d->context != nullptr) {
+        Transaction txn(*d->context);
+        result = remove(txn, key);
+    }
+    return result;
+}
+
+
+/**
+ * @brief Remove all values for the given @p key.
+ *
+ * This is an overloaded version of remove(). It runs the operation in the
+ * given @p transaction.
+ */
+bool Database::remove(const Transaction &transaction, const QByteArray &key)
+{
+    Q_UNUSED(transaction);
+    Q_UNUSED(key);
+    return false;
+}
+
+
+/**
+ * @brief Remove a specific @p value for the given @p key.
+ *
+ * This method removes the specific key/value pair from the database. It
+ * can be used in databases configured to accept multiple values to delete
+ * only a specific value from the database.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+bool Database::remove(const QByteArray &key, const QByteArray &value)
+{
+    Q_D(Database);
+    bool result = false;
+    if (d->context != nullptr) {
+        Transaction txn(*d->context);
+        result = remove(txn, key, value);
+    }
+    return result;
+}
+
+
+/**
+ * @brief Remove a specific @p value for the given @p key.
+ *
+ * This is an overloaded version of remove(). It runs the operation in the
+ * given @p transaction.
+ */
+bool Database::remove(const Transaction &transaction, const QByteArray &key,
+                      const QByteArray &value)
+{
+    Q_UNUSED(transaction);
+    Q_UNUSED(key);
+    Q_UNUSED(value);
+    return false;
 }
 
 } // namespace Core

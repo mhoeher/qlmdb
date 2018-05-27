@@ -17,6 +17,10 @@
 #ifndef DATABASE_H
 #define DATABASE_H
 
+#include <type_traits>
+#include <optional>
+
+#include <QByteArrayList>
 #include <QScopedPointer>
 #include <QString>
 
@@ -51,6 +55,73 @@ public:
     QString lastErrorString() const;
     void clearLastError();
 
+    bool put(const QByteArray &key, const QByteArray &value);
+    bool put(const Transaction &transaction, const QByteArray &key,
+             const QByteArray &value);
+    QByteArray get(const QByteArray &key);
+    QByteArray get(const Transaction &transaction, const QByteArray &key);
+    QByteArrayList getAll(const QByteArray &key);
+    QByteArrayList getAll(const Transaction &transaction,
+                          const QByteArray &key);
+    inline QByteArray operator [](const QByteArray &key);
+    bool remove(const QByteArray &key);
+    bool remove(const Transaction &transaction, const QByteArray &key);
+    bool remove(const QByteArray &key, const QByteArray &value);
+    bool remove(const Transaction &transaction, const QByteArray &key,
+                const QByteArray &value);
+
+    template<typename T>
+    inline bool put(
+            typename std::enable_if<std::is_integral<T>::value, T>::type key,
+            const QByteArray &value);
+
+    template<typename T>
+    inline bool put(
+            const Transaction &transaction,
+            typename std::enable_if<std::is_integral<T>::value, T>::type key,
+            const QByteArray &value);
+
+    template<typename T>
+    inline QByteArray get(
+            typename std::enable_if<std::is_integral<T>::value, T>::type key);
+
+    template<typename T>
+    inline QByteArray get(
+            const Transaction &transaction,
+            typename std::enable_if<std::is_integral<T>::value, T>::type key);
+
+    template<typename T>
+    inline QByteArrayList getAll(
+            typename std::enable_if<std::is_integral<T>::value, T>::type key);
+
+    template<typename T>
+    inline QByteArrayList getAll(
+            const Transaction &transaction,
+            typename std::enable_if<std::is_integral<T>::value, T>::type key);
+
+    template<typename T>
+    inline QByteArray operator [](
+            typename std::enable_if<std::is_integral<T>::value, T>::type key);
+
+    template<typename T>
+    inline bool remove(
+            typename std::enable_if<std::is_integral<T>::value, T>::type key);
+
+    template<typename T>
+    inline bool remove(
+            const Transaction &transaction,
+            typename std::enable_if<std::is_integral<T>::value, T>::type key);
+
+    template<typename T>
+    inline bool remove(
+            typename std::enable_if<std::is_integral<T>::value, T>::type key,
+            const QByteArray &value);
+
+    template<typename T>
+    inline bool remove(
+            const Transaction &transaction,
+            typename std::enable_if<std::is_integral<T>::value, T>::type key,
+            const QByteArray &value);
 
 private:
 
@@ -58,6 +129,203 @@ private:
     Q_DECLARE_PRIVATE(Database)
 
 };
+
+
+
+/**
+ * @brief Get the value for the given @p key from the database.
+ *
+ * This is basically equivalent to calling the get() method.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+QByteArray Database::operator [](const QByteArray &key)
+{
+    return get(key);
+}
+
+
+/**
+ * @brief Insert the @p key - @p value pair into the database.
+ *
+ * This is a convenience method which allows to use integral types
+ * as key.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+template<typename T>
+bool Database::put(
+        typename std::enable_if<std::is_integral<T>::value, T>::type key,
+        const QByteArray &value)
+{
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return put(k, value);
+}
+
+
+/**
+ * @brief Insert the @p key - @p value pair into the database.
+ *
+ * This is an overloaded version of put() which runs the
+ * operation in the given @p transaction.
+ */
+template<typename T>
+bool Database::put(
+        const Transaction &transaction,
+        typename std::enable_if<std::is_integral<T>::value, T>::type key,
+        const QByteArray &value) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return put(transaction, k, value);
+}
+
+
+/**
+ * @brief Get the value for the given @p key from the database.
+ *
+ * This is a convenience method which allows to use integral types
+ * as key.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+template<typename T>
+QByteArray Database::get(
+        typename std::enable_if<std::is_integral<T>::value, T>::type key) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return get(k);
+}
+
+
+/**
+ * @brief Get the value for the given @p key from the database.
+ *
+ * This is an overloaded version of get() which runs the
+ * operation in the given @p transaction.
+ */
+template<typename T>
+inline QByteArray Database::get(
+        const Transaction &transaction,
+        typename std::enable_if<std::is_integral<T>::value, T>::type key) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return get(transaction, k);
+}
+
+
+/**
+ * @brief Get all values for the given @p key from the database.
+ *
+ * This is a convenience method which allows to use integral types
+ * as key.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+template<typename T>
+QByteArrayList Database::getAll(
+        typename std::enable_if<std::is_integral<T>::value, T>::type key) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return  getAll(k);
+}
+
+
+/**
+ * @brief Get all values for the given @p key from the database.
+ *
+ * This is an overloaded version of getAll() which runs the
+ * operation in the given @p transaction.
+ */
+template<typename T>
+inline QByteArrayList Database::getAll(
+        const Transaction &transaction,
+        typename std::enable_if<std::is_integral<T>::value, T>::type key) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return getAll(transaction, k);
+}
+
+
+/**
+ * @brief Get the value for the given @p key from the database.
+ *
+ * This is a convenience method which allows to use integral types
+ * as key.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+template<typename T>
+QByteArray Database::operator [](
+        typename std::enable_if<std::is_integral<T>::value, T>::type key) {
+    return get(key);
+}
+
+
+/**
+ * @brief Remove all values for the given @p key.
+ *
+ * This is a convenience method which allows to use integral types
+ * as key.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+template<typename T>
+bool Database::remove(
+        typename std::enable_if<std::is_integral<T>::value, T>::type key) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return remove(k);
+}
+
+
+/**
+ * @brief Remove all values for the given @p key.
+ *
+ * This is an overloaded version of remove() which runs the
+ * operation in the given @p transaction.
+ */
+template<typename T>
+inline bool Database::remove(
+        const Transaction &transaction,
+        typename std::enable_if<std::is_integral<T>::value, T>::type key) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return remove(transaction, k);
+}
+
+
+/**
+ * @brief Remove a specific @p value for the given @p key.
+ *
+ * This is a convenience method which allows to use integral types
+ * as key.
+ *
+ * @note This method must not be called when another Transaction is
+ * active in the same thread.
+ */
+template<typename T>
+bool Database::remove(
+        typename std::enable_if<std::is_integral<T>::value, T>::type key,
+        const QByteArray &value) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return remove(k, value);
+}
+
+
+/**
+ * @brief Remove a specific @p value for the given @p key.
+ *
+ * This is an overloaded version of remove() which runs the
+ * operation in the given @p transaction.
+ */
+template<typename T>
+inline bool Database::remove(
+        const Transaction &transaction,
+        typename std::enable_if<std::is_integral<T>::value, T>::type key,
+        const QByteArray &value) {
+    QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
+    return remove(transaction, k, value);
+}
+
 
 } // namespace Core
 } // namespace QLMDB
