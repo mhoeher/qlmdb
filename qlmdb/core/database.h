@@ -24,15 +24,19 @@
 #include <QScopedPointer>
 #include <QString>
 
+#include "qlmdb_global.h"
+
 namespace QLMDB {
 namespace Core {
 
-class DatabasePrivate;
+class Cursor;
 class Context;
+class DatabasePrivate;
 class Transaction;
 
-class Database
+class QLMDBSHARED_EXPORT Database
 {
+    friend class Cursor;
 public:
     static const unsigned int ReverseKey;
     static const unsigned int MultiValues;

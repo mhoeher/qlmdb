@@ -36,24 +36,24 @@ SOURCES += \
     core/transactionprivate.cpp \
     core/database.cpp \
     core/databaseprivate.cpp \
+    core/cursor.cpp \
+    core/cursorprivate.cpp
 
 PUBLIC_CORE_HEADERS = \
     core/context.h \
     core/errors.h \
     core/transaction.h \
     core/database.h \
+    core/cursor.h \
 
 PUBLIC_HEADERS = \
-    database.h \
     qlmdb_global.h \
-    collection.h \
 
 PRIVATE_HEADERS = \
-    databaseprivate.h \
-    collectionprivate.h \
     core/contextprivate.h \
     core/transactionprivate.h \
-    core/databaseprivate.h
+    core/databaseprivate.h \
+    core/cursorprivate.h \
 
 HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS $$PUBLIC_CORE_HEADERS
 

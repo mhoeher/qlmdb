@@ -14,53 +14,46 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef TRANSACTION_H
-#define TRANSACTION_H
+#ifndef CURSOR_H
+#define CURSOR_H
 
+#include <QString>
 #include <QScopedPointer>
-#include <QtGlobal>
 
 #include "qlmdb_global.h"
 
 namespace QLMDB {
 namespace Core {
 
-class Context;
-class Cuesor;
+class Transaction;
 class Database;
-class TransactionPrivate;
-class DatabasePrivate;
+class CursorPrivate;
 
-class QLMDBSHARED_EXPORT Transaction
+class QLMDBSHARED_EXPORT Cursor
 {
-    friend class Cursor;
-    friend class Database;
-    friend class DatabasePrivate;
 public:
-    static const unsigned int ReadOnly;
+    static const unsigned int ReplaceCurrent;
+    static const unsigned int NoDuplicateData;
+    static const unsigned int NoOverrideKey;
+    static const unsigned int Reserve;
+    static const unsigned int Append;
+    static const unsigned int AppendDuplicate;
 
-    explicit Transaction(Context &context, unsigned int flags = 0);
-    explicit Transaction(Transaction &parent, unsigned int flags = 0);
-    virtual ~Transaction();
 
-    Transaction& operator =(const Transaction &other) = delete;
+    explicit Cursor(Transaction &transaction, Database &database);
+    virtual ~Cursor();
 
     bool isValid() const;
     int lastError() const;
     QString lastErrorString() const;
-
-    bool commit();
-    bool abort();
-
+    void clearLastError();
 
 private:
-    QScopedPointer<TransactionPrivate> d_ptr;
-
-    Q_DECLARE_PRIVATE(Transaction)
-
+    QScopedPointer<CursorPrivate> d_ptr;
+    Q_DECLARE_PRIVATE(Cursor)
 };
 
 } // namespace Core
 } // namespace QLMDB
 
-#endif // TRANSACTION_H
+#endif // CURSOR_H
