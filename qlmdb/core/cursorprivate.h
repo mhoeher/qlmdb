@@ -19,7 +19,11 @@
 
 #include <lmdb.h>
 
+#include <QObject>
 #include <QString>
+
+#include "cursor.h"
+#include "errors.h"
 
 
 namespace QLMDB {
@@ -35,7 +39,70 @@ public:
     int lastError;
     QString lastErrorString;
     bool valid;
+
+    inline Cursor::FindResult get(
+            MDB_val &key, MDB_val &value, MDB_cursor_op op);
 };
+
+
+/**
+ * @brief Construct a QByteArray from an MDB_val.
+ *
+ * This function returns a QByteArray which holds the data given in the
+ * @p val. Note that the caller must ensure that the MDB_val remains valid
+ * for as long as the returned QByteArray is used.
+ */
+inline QByteArray value_to_bytearray(const MDB_val &val)
+{
+    return QByteArray::fromRawData(
+                static_cast<const char*>(val.mv_data),
+                static_cast<int>(val.mv_size));
+}
+
+
+/**
+ * @brief Convert a byte array to a MDB_val.
+ *
+ * This initializes the fields of an MDB_val from the given @p byteArray.
+ * Note that the caller must ensure that the byte array remains valid for as
+ * long as the returned value is in use.
+ *
+ * In particular, note that this function avoids a copy-on-write on the passed
+ * in byte array for performance reasons.
+ */
+inline MDB_val bytearray_to_value(const QByteArray &byteArray)
+{
+    MDB_val result;
+    // Avoid a deep copy by using constData().
+    result.mv_data = const_cast<char*>(byteArray.constData());
+    result.mv_size = static_cast<size_t>(byteArray.size());
+    return result;
+}
+
+
+/**
+ * @brief Retrieve data via the cursor.
+ */
+Cursor::FindResult CursorPrivate::get(MDB_val &key, MDB_val &value,
+                                      MDB_cursor_op op)
+{
+    Cursor::FindResult result;
+    if (valid) {
+        lastError = mdb_cursor_get(cursor, &key, &value, op);
+        if (lastError == Errors::NoError) {
+            lastErrorString.clear();
+            result = Cursor::FindResult(
+                        value_to_bytearray(key),
+                        value_to_bytearray(value));
+        } else if (lastError == Errors::NotFound) {
+            lastErrorString = QObject::tr("Unable to find key in the database");
+        } else if (lastError == Errors::InvalidParameter) {
+            lastErrorString = QObject::tr("Invalid parameter passed to "
+                                          "cursor get operation");
+        }
+    }
+    return result;
+}
 
 } // namespace Core
 } // namespace QLMDB

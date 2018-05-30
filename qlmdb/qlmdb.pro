@@ -11,7 +11,7 @@ TEMPLATE = lib
 
 DEFINES += QLMDB_LIBRARY
 
-CONFIG *= create_prl
+CONFIG *= create_prl c++11
 
 qlmdb_with_static_libs {
     CONFIG += static

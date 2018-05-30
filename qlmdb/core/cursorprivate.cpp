@@ -30,5 +30,7 @@ CursorPrivate::CursorPrivate() :
 
 }
 
+
+
 } // namespace Core
 } // namespace QLMDB

@@ -38,6 +38,8 @@ private Q_SLOTS:
     void init();
     void cleanup();
     void constructor();
+    void put();
+    void get();
 
 private:
     QTemporaryDir *tmpDir;
@@ -84,6 +86,125 @@ void Core_Cursor_Test::constructor()
         QVERIFY(!cursor.isValid());
         QCOMPARE(cursor.lastError(), Errors::InvalidParameter);
         QVERIFY(!cursor.lastErrorString().isEmpty());
+    }
+}
+
+void Core_Cursor_Test::put()
+{
+    {
+        Context ctx;
+        ctx.setPath(tmpDir->path());
+        ctx.setMaxDBs(1);
+        QVERIFY(ctx.open());
+        {
+            Transaction txn(ctx);
+            QVERIFY(txn.isValid());
+            Database db(txn);
+            QVERIFY(db.isValid());
+            Cursor cursor(txn, db);
+            QVERIFY(cursor.isValid());
+            QVERIFY(cursor.put("msg", "Hello World"));
+            QCOMPARE(cursor.currentKey(), QByteArray("msg"));
+            QCOMPARE(cursor.currentValue(), QByteArray("Hello World"));
+            QVERIFY(!cursor.put("msg", "Foo Bar Baz", Cursor::NoOverrideKey));
+            QCOMPARE(cursor.lastError(), Errors::KeyExists);
+            QCOMPARE(cursor.currentKey(), QByteArray("msg"));
+            QCOMPARE(cursor.currentValue(), QByteArray("Hello World"));
+            QVERIFY(cursor.put("msg", "Bye!"));
+            QCOMPARE(cursor.currentKey(), QByteArray("msg"));
+            QCOMPARE(cursor.currentValue(), QByteArray("Bye!"));
+        }
+        {
+            Transaction txn(ctx);
+            QVERIFY(txn.isValid());
+            Database db(txn, "Test", Database::MultiValues | Database::Create);
+            QVERIFY(db.isValid());
+            Cursor cursor(txn, db);
+            QVERIFY(cursor.isValid());
+            QVERIFY(cursor.put("msg", "Hello World"));
+            QCOMPARE(cursor.currentKey(), QByteArray("msg"));
+            QCOMPARE(cursor.currentValue(), QByteArray("Hello World"));
+            QVERIFY(!cursor.put("msg", "Hello World", Cursor::NoDuplicateData));
+            QCOMPARE(cursor.lastError(), Errors::KeyExists);
+            QCOMPARE(cursor.currentKey(), QByteArray("msg"));
+            QCOMPARE(cursor.currentValue(), QByteArray("Hello World"));
+            QVERIFY(cursor.put("msg", "Hello World"));
+            QCOMPARE(cursor.currentKey(), QByteArray("msg"));
+            QCOMPARE(cursor.currentValue(), QByteArray("Hello World"));
+            QVERIFY(cursor.put("msg", "Bye!"));
+            QCOMPARE(cursor.currentKey(), QByteArray("msg"));
+            QCOMPARE(cursor.currentValue(), QByteArray("Bye!"));
+        }
+    }
+
+    {
+        Context ctx;
+        QVERIFY(!ctx.open());
+        Transaction txn(ctx);
+        QVERIFY(!txn.isValid());
+        Database db(txn);
+        QVERIFY(!db.isValid());
+        Cursor cursor(txn, db);
+        QVERIFY(!cursor.isValid());
+        QVERIFY(!cursor.put("msg", "Hello World"));
+    }
+}
+
+void Core_Cursor_Test::get()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+    {
+        Transaction txn(ctx);
+        QVERIFY(txn.isValid());
+        Database db(txn);
+        QVERIFY(db.isValid());
+        Cursor cursor(txn, db);
+        QVERIFY(cursor.isValid());
+        QVERIFY(cursor.put("a", "foo"));
+        QVERIFY(cursor.put("b", "bar"));
+        QVERIFY(cursor.put("d", "baz"));
+        QCOMPARE(cursor.first(), Cursor::FindResult("a", "foo"));
+        QCOMPARE(cursor.last(), Cursor::FindResult("d", "baz"));
+        QCOMPARE(cursor.current(), Cursor::FindResult("d", "baz"));
+        QCOMPARE(cursor.previous(), Cursor::FindResult("b", "bar"));
+        QCOMPARE(cursor.next(), Cursor::FindResult("d", "baz"));
+        QCOMPARE(cursor.last(), Cursor::FindResult("d", "baz"));
+        QCOMPARE(cursor.findKey("b"), Cursor::FindResult("b", "bar"));
+        QCOMPARE(cursor.findFirstAfter("aa"), Cursor::FindResult("b", "bar"));
+    }
+    {
+        Transaction txn(ctx);
+        QVERIFY(txn.isValid());
+        Database db(txn, "test", Database::MultiValues | Database::Create);
+        QVERIFY(db.isValid());
+        Cursor cursor(txn, db);
+        QVERIFY(cursor.isValid());
+        QVERIFY(cursor.put("a", "foo1"));
+        QVERIFY(cursor.put("a", "foo2"));
+        QVERIFY(cursor.put("a", "foo3"));
+        QVERIFY(cursor.put("b", "bar1"));
+        QVERIFY(cursor.put("d", "baz1"));
+        QVERIFY(cursor.put("d", "baz2"));
+
+        QCOMPARE(cursor.first(), Cursor::FindResult("a", "foo1"));
+        QCOMPARE(cursor.nextForCurrentKey(), Cursor::FindResult("a", "foo2"));
+        QCOMPARE(cursor.firstForCurrentKey(), Cursor::FindResult("a", "foo1"));
+        QCOMPARE(cursor.lastForCurrentKey(), Cursor::FindResult("a", "foo3"));
+        QCOMPARE(cursor.previousForCurrentKey(),
+                 Cursor::FindResult("a", "foo2"));
+        QCOMPARE(cursor.nextKey(), Cursor::FindResult("b", "bar1"));
+        QCOMPARE(cursor.find("a", "foo2"), Cursor::FindResult("a", "foo2"));
+        QCOMPARE(cursor.findNearest("b", "bar1"),
+                 Cursor::FindResult("b", "bar1"));
+        // TODO: Why is the cursor not positioned at "b"/"bar2"?
+//        QCOMPARE(cursor.findNearest("b", "bar1.5"),
+//                 Cursor::FindResult("b", "bar2"));
+        QCOMPARE(cursor.findFirstAfter("c"), Cursor::FindResult("d", "baz1"));
+
+
     }
 }
 

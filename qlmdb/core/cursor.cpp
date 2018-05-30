@@ -193,5 +193,341 @@ void Cursor::clearLastError()
     d->lastErrorString.clear();
 }
 
+
+/**
+ * @brief Store data in the database.
+ *
+ * Store the @p data under the @p key in the database. The way the data is
+ * written can be influenced by specifying additional @p flags, which is either
+ * zero or a bitwise OR-combination of the following values:
+ *
+ * - ReplaceCurrent
+ * - NoDuplicateData
+ * - NoOverrideKey
+ * - Reserve
+ * - Append
+ * - AppendDuplicate
+ *
+ * If writing of the data was successful, the method returns true and the
+ * cursor is positioned on the newly inserted key/value pair. On error,
+ * the method returns false; in this case, the cursor is usually positioned
+ * somewhere near the place the key/value pair would have been inserted.
+ *
+ * Note: When using the flags NoDuplicateData or NoOverrideKey, the operation
+ * returns false and sets lastError() to Errors::KeyExists to indicate that
+ * the data has not been inserted to avoid duplicates.
+ */
+bool Cursor::put(const QByteArray &key, const QByteArray &data,
+                 unsigned int flags)
+{
+    Q_D(Cursor);
+    bool result = false;
+    if (isValid()) {
+        MDB_val k;
+        k.mv_data = const_cast<char*>(key.constData());
+        k.mv_size = static_cast<size_t>(key.size());
+
+        MDB_val v;
+        v.mv_data = const_cast<char*>(data.constData());
+        v.mv_size = static_cast<size_t>(data.size());
+
+        d->lastError = mdb_cursor_put(d->cursor, &k, &v, flags);
+
+        if (d->lastError == Errors::NoError) {
+            d->lastErrorString.clear();
+            result = true;
+        } else if (d->lastError == Errors::MapFull) {
+            d->lastErrorString = QObject::tr("No more space in database");
+        } else if (d->lastError == Errors::TooManyTransactions) {
+            d->lastErrorString = QObject::tr("Transaction has too many dirty "
+                                             "pages");
+        } else if (d->lastError == Errors::NoAccessToPath) {
+            d->lastErrorString = QObject::tr("Cannot write in a readonly "
+                                             "transaction");
+        } else if (d->lastError == Errors::InvalidParameter) {
+            d->lastErrorString = QObject::tr("Invalid parameters when trying "
+                                             "to write via Cursor");
+        } else if (d->lastError == Errors::KeyExists) {
+            d->lastErrorString = QObject::tr("The specified key already exists "
+                                             "in the database");
+        } else {
+            d->lastErrorString = QObject::tr("Unexpected error writing via "
+                                             "Cursor");
+        }
+    }
+    return result;
+}
+
+
+/**
+ * @brief Get the current key the cursor is positioned on.
+ *
+ * This returns the key the cursor currently points to. Use one of
+ * the methods to position the cursor first and the query the key
+ * using this method.
+ */
+QByteArray Cursor::currentKey()
+{
+    QByteArray key;
+    auto result = current();
+    if (result.valid) {
+        key = result.key;
+    }
+    return key;
+}
+
+
+/**
+ * @brief Get the current value the cursor is positioned on.
+ *
+ * This returns the value the cursor currently points to. Use one of
+ * the methods to position the cursor first and the query the value
+ * using this method.
+ */
+QByteArray Cursor::currentValue()
+{
+    QByteArray value;
+    auto result = current();
+    if (result.valid) {
+        value = result.value;
+    }
+    return value;
+}
+
+
+/**
+ * @brief Get the current key/value pair.
+ *
+ * This returns the key/value pair the cursor currently points
+ * to or an empty value if the cursor does not point anywhere.
+ */
+Cursor::FindResult Cursor::current()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_GET_CURRENT);
+
+}
+
+
+/**
+ * @brief Get the first key/value pair in the database.
+ */
+Cursor::FindResult Cursor::first()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_FIRST);
+}
+
+
+/**
+ * @brief Get the last key/value pair in the database.
+ */
+Cursor::FindResult Cursor::last()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_LAST);
+}
+
+
+/**
+ * @brief Get the first key/value pair for the key the cursor points to.
+ *
+ * This positions the cursor at the first key for the keys the cursor
+ * currently points to and returns the key/value pair there.
+ *
+ * @note This operation is only valid for databases opened with support for
+ * multiple values per key.
+ */
+Cursor::FindResult Cursor::firstForCurrentKey()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    // Note: MDB_FIRST_DUP does not update the key, hence we need to do
+    // a "get current" if the operation itself succeeded.
+    auto ret = d->get(key, value, MDB_FIRST_DUP);
+    if (ret.valid) {
+        return d->get(key, value, MDB_GET_CURRENT);
+    }
+    return FindResult();
+}
+
+
+/**
+ * @brief Get the last key/value pair for the key the cursor points to.
+ *
+ * This positions the cursor at the last key for the keys the cursor
+ * currently points to and returns the key/value pair there.
+ *
+ * @note This operation is only valid for databases opened with support for
+ * multiple values per key.
+ */
+Cursor::FindResult Cursor::lastForCurrentKey()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    // Note: MDB_LAST_DUP does not update the key, hence we need to do
+    // a "get current" if the operation itself succeeded.
+    auto ret = d->get(key, value, MDB_LAST_DUP);
+    if (ret.valid) {
+        return d->get(key, value, MDB_GET_CURRENT);
+    }
+    return FindResult();
+}
+
+
+/**
+ * @brief Position the cursor at the given key/value pair.
+ *
+ * This positions the cursor at the @p key and @p value specified and return
+ * it as a result.
+ *
+ * @note This operation is only valid for databases opened with support for
+ * multiple values per key.
+ */
+Cursor::FindResult Cursor::find(QByteArray key, QByteArray value)
+{
+    Q_D(Cursor);
+    MDB_val k = bytearray_to_value(key);
+    MDB_val v = bytearray_to_value(value);
+    return d->get(k, v, MDB_GET_BOTH);
+}
+
+
+/**
+ * @brief Position the cursor at the given key/value pair or somewhere near.
+ *
+ * This positions the cursor at the given @p key and a value either equal to
+ * the @p value or near to it.
+ *
+ * @note This operation is only valid for databases opened with support for
+ * multiple values per key.
+ */
+Cursor::FindResult Cursor::findNearest(QByteArray key, QByteArray value)
+{
+    Q_D(Cursor);
+    MDB_val k = bytearray_to_value(key);
+    MDB_val v = bytearray_to_value(value);
+    return d->get(k, v, MDB_GET_BOTH_RANGE);
+}
+
+
+/**
+ * @brief Get the key/value pair for the given @p key.
+ */
+Cursor::FindResult Cursor::findKey(QByteArray key)
+{
+    Q_D(Cursor);
+    MDB_val k = bytearray_to_value(key);
+    MDB_val value;
+    return d->get(k, value, MDB_SET_KEY);
+}
+
+
+/**
+ * @brief Position the cursor on or next to a given key.
+ *
+ * This position the cursor either at the specified @p key or the
+ * one next to it according to sorting.
+ */
+Cursor::FindResult Cursor::findFirstAfter(QByteArray key)
+{
+    Q_D(Cursor);
+    MDB_val k = bytearray_to_value(key);
+    MDB_val value;
+    return d->get(k, value, MDB_SET_RANGE);
+}
+
+
+/**
+ * @brief Get the next key/value pair.
+ */
+Cursor::FindResult Cursor::next()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_NEXT);
+}
+
+
+/**
+ * @brief Position the cursor at the next key/value pair for the current key.
+ *
+ * @note This operation is only valid for databases opened with support for
+ * multiple values per key.
+ */
+Cursor::FindResult Cursor::nextForCurrentKey()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_NEXT_DUP);
+}
+
+
+/**
+ * @brief Position the cursor at the first key/value pair of the next key.
+ *
+ * @note This operation is only valid for databases opened with support for
+ * multiple values per key.
+ */
+Cursor::FindResult Cursor::nextKey()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_NEXT_NODUP);
+}
+
+
+/**
+ * @brief Get the previous key/value pair.
+ */
+Cursor::FindResult Cursor::previous()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_PREV);
+}
+
+
+/**
+ * @brief Get the previous key/value pair for the current key.
+ *
+ * @note This operation is only valid for databases opened with support for
+ * multiple values per key.
+ */
+Cursor::FindResult Cursor::previousForCurrentKey()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_PREV_DUP);
+}
+
+
+/**
+ * @brief Position the cursor at the last element of the previous key.
+ *
+ * @note This operation is only valid for databases opened with support for
+ * multiple values per key.
+ */
+Cursor::FindResult Cursor::previousKey()
+{
+    Q_D(Cursor);
+    MDB_val key, value;
+    return d->get(key, value, MDB_PREV_NODUP);
+}
+
+char *toString(const Cursor::FindResult &result)
+{
+    auto str = QString("QLMDB::Core::Cursor::FindResult("
+                          "key='%1',value='%2',valid=%3");
+    str = str.arg(
+                QString(result.key.toPercentEncoding())).arg(
+                QString(result.value.toPercentEncoding())).arg(
+                result.valid);
+    return qstrdup(str.toUtf8().data());
+}
+
 } // namespace Core
 } // namespace QLMDB
