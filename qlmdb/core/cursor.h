@@ -36,12 +36,17 @@ class CursorPrivate;
 class QLMDBSHARED_EXPORT Cursor
 {
 public:
+    // Flags for data insertion:
     static const unsigned int ReplaceCurrent;
     static const unsigned int NoDuplicateData;
     static const unsigned int NoOverrideKey;
     static const unsigned int Reserve;
     static const unsigned int Append;
     static const unsigned int AppendDuplicate;
+
+    // Flags for data deletion:
+    static const unsigned int RemoveAll;
+
 
     /**
      * @brief Represents a data item retrieved via the cursor.
@@ -95,6 +100,7 @@ public:
     FindResult previous();
     FindResult previousForCurrentKey();
     FindResult previousKey();
+    bool remove(unsigned int flags = 0);
 
 private:
     QScopedPointer<CursorPrivate> d_ptr;

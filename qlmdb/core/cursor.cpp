@@ -100,6 +100,17 @@ const unsigned int Cursor::AppendDuplicate = MDB_APPENDDUP;
 
 
 /**
+ * @brief Remove all key/value pairs of the current key.
+ *
+ * If this flag is set, all values stored under the current key are removed.
+ * Otherwise, only the current key/value pair is.
+ *
+ * This must only be used with databases that allow multiple values per key.
+ */
+const unsigned int Cursor::RemoveAll = MDB_NODUPDATA;
+
+
+/**
  * @brief Constructor.
  *
  * To create a cursor, a @p transaction and a @p database are required. The
@@ -518,6 +529,55 @@ Cursor::FindResult Cursor::previousKey()
     return d->get(key, value, MDB_PREV_NODUP);
 }
 
+
+/**
+ * @brief Remove data.
+ *
+ * Use this to delete data from the database operated on by the cursor. By
+ * default, the current key/value pair is removed (hence, use one of the move
+ * operations to position the cursor first).
+ *
+ * In addition, the @p flags can be set to a bitwise OR-combination of the
+ * following to adjust the behaviour:
+ *
+ * - RemoveAll
+ *
+ * The method returns true if the deletion was successfull or false otherwise.
+ */
+bool Cursor::remove(unsigned int flags)
+{
+    Q_D(Cursor);
+    bool result = false;
+    if (d->valid) {
+        d->lastError = mdb_cursor_del(d->cursor, flags);
+        if (d->lastError == Errors::NoError) {
+            d->lastErrorString.clear();
+            result = true;
+        } else if (d->lastError == Errors::NoAccessToPath) {
+            d->lastErrorString = QObject::tr("Attempt to remove in readonly "
+                                             "environment or transaction");
+        } else if (d->lastError == Errors::InvalidParameter) {
+            d->lastErrorString = QObject::tr("Invalid parameters passed to "
+                                             "Cursor::remove()");
+        } else {
+            d->lastErrorString = QObject::tr("Unexpected error during "
+                                             "Cursor::remove() operation");
+        }
+    }
+    return result;
+}
+
+
+/**
+ * @brief Helper function: Converts a Cursor::FindResult to a string.
+ *
+ * This function takes a find @p result and converts it to a (plain) string.
+ * Note that the caller is assumed to take ownership of the returned data;
+ * the returned string must be freed using `delete[]`.
+ *
+ * @note This is for testing purposes and usually should not be required to
+ * be used.
+ */
 char *toString(const Cursor::FindResult &result)
 {
     auto str = QString("QLMDB::Core::Cursor::FindResult("

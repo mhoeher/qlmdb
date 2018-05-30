@@ -40,6 +40,7 @@ private Q_SLOTS:
     void constructor();
     void put();
     void get();
+    void remove();
 
 private:
     QTemporaryDir *tmpDir;
@@ -203,7 +204,54 @@ void Core_Cursor_Test::get()
 //        QCOMPARE(cursor.findNearest("b", "bar1.5"),
 //                 Cursor::FindResult("b", "bar2"));
         QCOMPARE(cursor.findFirstAfter("c"), Cursor::FindResult("d", "baz1"));
+    }
+}
 
+void Core_Cursor_Test::remove()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+    {
+        Transaction txn(ctx);
+        QVERIFY(txn.isValid());
+        Database db(txn);
+        QVERIFY(db.isValid());
+        Cursor cursor(txn, db);
+        QVERIFY(cursor.isValid());
+        QVERIFY(cursor.put("a", "foo"));
+        QVERIFY(cursor.put("b", "bar"));
+        QVERIFY(cursor.put("d", "baz"));
+        QCOMPARE(cursor.findKey("b"), Cursor::FindResult("b", "bar"));
+        QVERIFY(cursor.remove());
+        QCOMPARE(cursor.first(), Cursor::FindResult("a", "foo"));
+        QCOMPARE(cursor.next(), Cursor::FindResult("d", "baz"));
+    }
+    {
+        Transaction txn(ctx);
+        QVERIFY(txn.isValid());
+        Database db(txn, "test", Database::MultiValues | Database::Create);
+        QVERIFY(db.isValid());
+        Cursor cursor(txn, db);
+        QVERIFY(cursor.isValid());
+        QVERIFY(cursor.put("a", "foo1"));
+        QVERIFY(cursor.put("a", "foo2"));
+        QVERIFY(cursor.put("a", "foo3"));
+        QVERIFY(cursor.put("b", "bar1"));
+        QVERIFY(cursor.put("b", "bar2"));
+        QVERIFY(cursor.put("d", "baz1"));
+        QVERIFY(cursor.put("d", "baz2"));
+
+        QCOMPARE(cursor.find("a", "foo2"), Cursor::FindResult("a", "foo2"));
+        QVERIFY(cursor.remove());
+        QCOMPARE(cursor.findKey("b"), Cursor::FindResult("b", "bar1"));
+        QVERIFY(cursor.remove(Cursor::RemoveAll));
+        QCOMPARE(cursor.first(), Cursor::FindResult("a", "foo1"));
+        QCOMPARE(cursor.next(), Cursor::FindResult("a", "foo3"));
+        QCOMPARE(cursor.next(), Cursor::FindResult("d", "baz1"));
+        QCOMPARE(cursor.next(), Cursor::FindResult("d", "baz2"));
+        QCOMPARE(cursor.next(), Cursor::FindResult());
 
     }
 }
