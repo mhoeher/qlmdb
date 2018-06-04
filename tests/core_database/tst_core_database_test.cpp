@@ -39,6 +39,10 @@ private Q_SLOTS:
     void cleanup();
     void fromContext();
     void fromTransaction();
+    void put();
+    void get();
+    void operatorArraySubscript();
+    void getAll();
 
 private:
 
@@ -114,6 +118,116 @@ void Core_Database_Test::fromTransaction()
     // Note: DB in invalid context: Not valid but no error either!
     QCOMPARE(invalidDB.lastError(), Errors::NoError);
     QCOMPARE(invalidDB.lastErrorString(), QString());
+}
+
+void Core_Database_Test::put()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+
+    Database db(ctx);
+
+    QVERIFY(db.put("a", "foo"));
+    QVERIFY(db.put<int>(1, "Test"));
+
+    {
+        Transaction txn(ctx);
+        QVERIFY(db.put(txn, "b", "bar"));
+        QVERIFY(db.put<int>(txn, 2, "abcde"));
+    }
+
+
+    Database mdb(ctx, "multi", Database::MultiValues | Database::Create);
+
+    QVERIFY(mdb.put("a", "foo1"));
+    QVERIFY(mdb.put("a", "foo2"));
+}
+
+void Core_Database_Test::get()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+
+    Database db(ctx);
+
+    QVERIFY(db.put("a", "foo"));
+    QVERIFY(db.put<int>(1, "Test"));
+    QCOMPARE(db.get("a"), QByteArray("foo"));
+    QCOMPARE(db.get<int>(1), QByteArray("Test"));
+    QCOMPARE(db.get("b"), QByteArray());
+    QCOMPARE(db.get<int>(2), QByteArray());
+
+    {
+        Transaction txn(ctx);
+        QVERIFY(db.put(txn, "b", "bar"));
+        QVERIFY(db.put<int>(txn, 2, "abcde"));
+        QCOMPARE(db.get(txn, "b"), QByteArray("bar"));
+        QCOMPARE(db.get<int>(txn, 2), QByteArray("abcde"));
+        QCOMPARE(db.get(txn, "c"), QByteArray());
+        QCOMPARE(db.get<int>(txn, 3), QByteArray());
+    }
+
+
+    Database mdb(ctx, "multi", Database::MultiValues | Database::Create);
+
+    QVERIFY(mdb.put("a", "foo1"));
+    QVERIFY(mdb.put("a", "foo2"));
+    QCOMPARE(mdb.get("a"), QByteArray("foo1"));
+}
+
+void Core_Database_Test::operatorArraySubscript()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+
+    Database db(ctx);
+
+    QVERIFY(db.put("a", "foo"));
+    QVERIFY(db.put<int>(1, "Test"));
+    QCOMPARE(db["a"], QByteArray("foo"));
+    QCOMPARE(db["b"], QByteArray());
+
+    Database mdb(ctx, "multi", Database::MultiValues | Database::Create);
+    QVERIFY(mdb.put("a", "foo1"));
+    QVERIFY(mdb.put("a", "foo2"));
+    QCOMPARE(mdb["a"], QByteArray("foo1"));
+}
+
+void Core_Database_Test::getAll()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+
+    Database mdb(ctx, "multi", Database::MultiValues | Database::Create);
+
+    QVERIFY(mdb.put("a", "foo1"));
+    QVERIFY(mdb.put("a", "foo2"));
+    QVERIFY(mdb.put("a", "foo3"));
+    QVERIFY(mdb.put("b", "bar1"));
+    QVERIFY(mdb.put<int>(1, "baz1"));
+    QVERIFY(mdb.put<int>(1, "baz2"));
+    QCOMPARE(mdb.getAll("a"), QByteArrayList({"foo1", "foo2", "foo3"}));
+    QCOMPARE(mdb.getAll("b"), QByteArrayList({"bar1"}));
+    QCOMPARE(mdb.getAll("c"), QByteArrayList());
+    QCOMPARE(mdb.getAll<int>(1), QByteArrayList({"baz1", "baz2"}));
+    QCOMPARE(mdb.getAll<int>(2), QByteArrayList());
+
+    {
+        Transaction txn(ctx);
+        QCOMPARE(mdb.getAll(txn, "a"), QByteArrayList({"foo1", "foo2", "foo3"}));
+        QCOMPARE(mdb.getAll(txn, "b"), QByteArrayList({"bar1"}));
+        QCOMPARE(mdb.getAll(txn, "c"), QByteArrayList());
+        QCOMPARE(mdb.getAll<int>(txn, 1), QByteArrayList({"baz1", "baz2"}));
+        QCOMPARE(mdb.getAll<int>(txn, 2), QByteArrayList());
+    }
 }
 
 QTEST_APPLESS_MAIN(Core_Database_Test)

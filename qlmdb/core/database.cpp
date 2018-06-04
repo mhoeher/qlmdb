@@ -17,6 +17,7 @@
 #include "lmdb.h"
 
 #include "context.h"
+#include "cursor.h"
 #include "database.h"
 #include "databaseprivate.h"
 #include "transaction.h"
@@ -297,13 +298,11 @@ bool Database::put(const QByteArray &key, const QByteArray &value)
  * This is an overloaded version of put() which accepts a @p transaction
  * to run the operation in. The transaction must not be read-only.
  */
-bool Database::put(const Transaction &transaction, const QByteArray &key,
+bool Database::put(Transaction &transaction, const QByteArray &key,
                    const QByteArray &value)
 {
-    Q_UNUSED(transaction);
-    Q_UNUSED(key);
-    Q_UNUSED(value);
-    return false;
+    Cursor cursor(transaction, *this);
+    return cursor.put(key, value);
 }
 
 
@@ -338,11 +337,10 @@ QByteArray Database::get(const QByteArray &key)
  * This is an overloaded version of the get() method. It retrieves the
  * value using the given @p transaction.
  */
-QByteArray Database::get(const Transaction &transaction, const QByteArray &key)
+QByteArray Database::get(Transaction &transaction, const QByteArray &key)
 {
-    Q_UNUSED(transaction);
-    Q_UNUSED(key);
-    return QByteArray();
+    Cursor cursor(transaction, *this);
+    return cursor.findKey(key).value;
 }
 
 
@@ -377,12 +375,17 @@ QByteArrayList Database::getAll(const QByteArray &key)
  * This is an overloaded version of getAll(). It runs the operation in
  * the given @p Transaction.
  */
-QByteArrayList Database::getAll(const Transaction &transaction,
+QByteArrayList Database::getAll(Transaction &transaction,
                                 const QByteArray &key)
 {
-    Q_UNUSED(transaction);
-    Q_UNUSED(key);
-    return QByteArrayList();
+    Cursor cursor(transaction, *this);
+    QByteArrayList result;
+    auto item = cursor.findKey(key);
+    while (item.valid) {
+        result << item.value;
+        item = cursor.nextForCurrentKey();
+    }
+    return result;
 }
 
 
@@ -414,7 +417,7 @@ bool Database::remove(const QByteArray &key)
  * This is an overloaded version of remove(). It runs the operation in the
  * given @p transaction.
  */
-bool Database::remove(const Transaction &transaction, const QByteArray &key)
+bool Database::remove(Transaction &transaction, const QByteArray &key)
 {
     Q_UNUSED(transaction);
     Q_UNUSED(key);
@@ -450,7 +453,7 @@ bool Database::remove(const QByteArray &key, const QByteArray &value)
  * This is an overloaded version of remove(). It runs the operation in the
  * given @p transaction.
  */
-bool Database::remove(const Transaction &transaction, const QByteArray &key,
+bool Database::remove(Transaction &transaction, const QByteArray &key,
                       const QByteArray &value)
 {
     Q_UNUSED(transaction);

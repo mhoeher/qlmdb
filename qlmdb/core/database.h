@@ -60,18 +60,18 @@ public:
     void clearLastError();
 
     bool put(const QByteArray &key, const QByteArray &value);
-    bool put(const Transaction &transaction, const QByteArray &key,
+    bool put(QLMDB::Core::Transaction &transaction, const QByteArray &key,
              const QByteArray &value);
     QByteArray get(const QByteArray &key);
-    QByteArray get(const Transaction &transaction, const QByteArray &key);
+    QByteArray get(Transaction &transaction, const QByteArray &key);
     QByteArrayList getAll(const QByteArray &key);
-    QByteArrayList getAll(const Transaction &transaction,
+    QByteArrayList getAll(Transaction &transaction,
                           const QByteArray &key);
     inline QByteArray operator [](const QByteArray &key);
     bool remove(const QByteArray &key);
-    bool remove(const Transaction &transaction, const QByteArray &key);
+    bool remove(Transaction &transaction, const QByteArray &key);
     bool remove(const QByteArray &key, const QByteArray &value);
-    bool remove(const Transaction &transaction, const QByteArray &key,
+    bool remove(Transaction &transaction, const QByteArray &key,
                 const QByteArray &value);
 
     template<typename T>
@@ -81,7 +81,7 @@ public:
 
     template<typename T>
     inline bool put(
-            const Transaction &transaction,
+            Transaction &transaction,
             typename std::enable_if<std::is_integral<T>::value, T>::type key,
             const QByteArray &value);
 
@@ -91,7 +91,7 @@ public:
 
     template<typename T>
     inline QByteArray get(
-            const Transaction &transaction,
+            Transaction &transaction,
             typename std::enable_if<std::is_integral<T>::value, T>::type key);
 
     template<typename T>
@@ -100,11 +100,7 @@ public:
 
     template<typename T>
     inline QByteArrayList getAll(
-            const Transaction &transaction,
-            typename std::enable_if<std::is_integral<T>::value, T>::type key);
-
-    template<typename T>
-    inline QByteArray operator [](
+            Transaction &transaction,
             typename std::enable_if<std::is_integral<T>::value, T>::type key);
 
     template<typename T>
@@ -113,7 +109,7 @@ public:
 
     template<typename T>
     inline bool remove(
-            const Transaction &transaction,
+            Transaction &transaction,
             typename std::enable_if<std::is_integral<T>::value, T>::type key);
 
     template<typename T>
@@ -123,7 +119,7 @@ public:
 
     template<typename T>
     inline bool remove(
-            const Transaction &transaction,
+            Transaction &transaction,
             typename std::enable_if<std::is_integral<T>::value, T>::type key,
             const QByteArray &value);
 
@@ -177,7 +173,7 @@ bool Database::put(
  */
 template<typename T>
 bool Database::put(
-        const Transaction &transaction,
+        Transaction &transaction,
         typename std::enable_if<std::is_integral<T>::value, T>::type key,
         const QByteArray &value) {
     QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
@@ -210,7 +206,7 @@ QByteArray Database::get(
  */
 template<typename T>
 inline QByteArray Database::get(
-        const Transaction &transaction,
+        Transaction &transaction,
         typename std::enable_if<std::is_integral<T>::value, T>::type key) {
     QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
     return get(transaction, k);
@@ -242,26 +238,10 @@ QByteArrayList Database::getAll(
  */
 template<typename T>
 inline QByteArrayList Database::getAll(
-        const Transaction &transaction,
+        Transaction &transaction,
         typename std::enable_if<std::is_integral<T>::value, T>::type key) {
     QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
     return getAll(transaction, k);
-}
-
-
-/**
- * @brief Get the value for the given @p key from the database.
- *
- * This is a convenience method which allows to use integral types
- * as key.
- *
- * @note This method must not be called when another Transaction is
- * active in the same thread.
- */
-template<typename T>
-QByteArray Database::operator [](
-        typename std::enable_if<std::is_integral<T>::value, T>::type key) {
-    return get(key);
 }
 
 
@@ -290,7 +270,7 @@ bool Database::remove(
  */
 template<typename T>
 inline bool Database::remove(
-        const Transaction &transaction,
+        Transaction &transaction,
         typename std::enable_if<std::is_integral<T>::value, T>::type key) {
     QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
     return remove(transaction, k);
@@ -323,7 +303,7 @@ bool Database::remove(
  */
 template<typename T>
 inline bool Database::remove(
-        const Transaction &transaction,
+        Transaction &transaction,
         typename std::enable_if<std::is_integral<T>::value, T>::type key,
         const QByteArray &value) {
     QByteArray k(reinterpret_cast<const char*>(&key), sizeof(key));
