@@ -20,7 +20,6 @@
 
 
 namespace QLMDB {
-namespace Core {
 
 ContextPrivate::ContextPrivate() :
     env(nullptr),
@@ -47,5 +46,4 @@ ContextPrivate::~ContextPrivate()
     }
 }
 
-} // namespace Core
 } // namespace QLMDB

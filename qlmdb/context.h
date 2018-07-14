@@ -24,7 +24,6 @@
 
 
 namespace QLMDB {
-namespace Core {
 
 class ContextPrivate;
 class Transaction;
@@ -83,7 +82,6 @@ private:
     Q_DECLARE_PRIVATE(Context)
 };
 
-} // namespace Core
 } // namespace QLMDB
 
 #endif // CONTEXT_H

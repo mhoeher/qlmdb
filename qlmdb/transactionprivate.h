@@ -14,23 +14,32 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
+#ifndef TRANSACTIONPRIVATE_H
+#define TRANSACTIONPRIVATE_H
 
-#include "cursorprivate.h"
-#include "errors.h"
+#include "lmdb.h"
+
+#include <QString>
+
+#include "context.h"
 
 namespace QLMDB {
-namespace Core {
 
-CursorPrivate::CursorPrivate() :
-    cursor(nullptr),
-    lastError(Errors::NoError),
-    lastErrorString(),
-    valid(false)
+//! @private
+class TransactionPrivate
 {
+public:
+    explicit TransactionPrivate(Context &context);
 
-}
+    Context &context;
+    MDB_txn *txn;
+    int lastError;
+    QString lastErrorString;
+    bool valid;
 
+    void handleOpenError();
+};
 
-
-} // namespace Core
 } // namespace QLMDB
+
+#endif // TRANSACTIONPRIVATE_H

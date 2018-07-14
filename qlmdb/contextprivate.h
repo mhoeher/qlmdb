@@ -26,7 +26,6 @@
 #include "errors.h"
 
 namespace QLMDB {
-namespace Core {
 
 class Transaction;
 
@@ -142,7 +141,6 @@ public:
     }
 };
 
-} // namespace Core
 } // namespace QLMDB
 
 #endif // CONTEXTPRIVATE_H

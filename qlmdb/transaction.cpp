@@ -21,7 +21,6 @@
 #include "errors.h"
 
 namespace QLMDB {
-namespace Core {
 
 /**
  * @class Transaction
@@ -246,5 +245,4 @@ bool Transaction::abort()
     return result;
 }
 
-} // namespace Core
 } // namespace QLMDB

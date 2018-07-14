@@ -20,7 +20,6 @@
 #include "qlmdb_global.h"
 
 namespace QLMDB {
-namespace Core {
 namespace Errors
 {
     // LMDB Specific Error Codes:
@@ -55,8 +54,7 @@ namespace Errors
     extern QLMDBSHARED_EXPORT const int OutOfDiskSpace;
     extern QLMDBSHARED_EXPORT const int IOError;
 
-}
-}
-}
+} // namespace Errors
+} // namespace QLMDB
 
 #endif // ERRORS_H

@@ -18,10 +18,10 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
-#include "core/context.h"
-#include "core/errors.h"
+#include "context.h"
+#include "errors.h"
 
-using namespace QLMDB::Core;
+using namespace QLMDB;
 
 class Core_Context_Test : public QObject
 {
@@ -93,4 +93,4 @@ void Core_Context_Test::clearLastError()
 
 QTEST_APPLESS_MAIN(Core_Context_Test)
 
-#include "tst_core_context_test.moc"
+#include "tst_context_test.moc"

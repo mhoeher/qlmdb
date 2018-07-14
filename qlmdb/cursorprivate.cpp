@@ -14,38 +14,19 @@
  * You should have received a copy of the GNU General Public License
  * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
  */
-#ifndef DATABASEPRIVATE_H
-#define DATABASEPRIVATE_H
 
-#include "lmdb.h"
-
-#include <QString>
-
-#include "context.h"
-#include "contextprivate.h"
+#include "cursorprivate.h"
+#include "errors.h"
 
 namespace QLMDB {
-namespace Core {
 
-//! @private
-class DatabasePrivate
+CursorPrivate::CursorPrivate() :
+    cursor(nullptr),
+    lastError(Errors::NoError),
+    lastErrorString(),
+    valid(false)
 {
-public:
-    DatabasePrivate();
 
-    Context *context;
-    MDB_dbi db;
-    int lastError;
-    QString lastErrorString;
-    bool valid;
+}
 
-    void initFromContext(Context &context, Transaction *txn,
-                         const QString &name,
-                         unsigned int flags);
-    bool evaluateCreateError(const QString &name);
-};
-
-} // namespace Core
 } // namespace QLMDB
-
-#endif // DATABASEPRIVATE_H

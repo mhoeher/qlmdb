@@ -23,7 +23,6 @@
 #include "qlmdb_global.h"
 
 namespace QLMDB {
-namespace Core {
 
 class Context;
 class Cuesor;
@@ -60,7 +59,6 @@ private:
 
 };
 
-} // namespace Core
 } // namespace QLMDB
 
 #endif // TRANSACTION_H

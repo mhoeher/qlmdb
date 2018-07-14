@@ -19,13 +19,13 @@
 #include <QTemporaryFile>
 #include <QtTest>
 
-#include "core/context.h"
-#include "core/cursor.h"
-#include "core/database.h"
-#include "core/errors.h"
-#include "core/transaction.h"
+#include "context.h"
+#include "cursor.h"
+#include "database.h"
+#include "errors.h"
+#include "transaction.h"
 
-using namespace QLMDB::Core;
+using namespace QLMDB;
 
 class Core_Cursor_Test : public QObject
 {
@@ -258,4 +258,4 @@ void Core_Cursor_Test::remove()
 
 QTEST_APPLESS_MAIN(Core_Cursor_Test)
 
-#include "tst_core_cursor_test.moc"
+#include "tst_cursor_test.moc"

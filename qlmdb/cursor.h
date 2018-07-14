@@ -27,7 +27,6 @@
 #include "qlmdb_global.h"
 
 namespace QLMDB {
-namespace Core {
 
 class Transaction;
 class Database;
@@ -151,7 +150,6 @@ bool Cursor::FindResult::operator !=(const Cursor::FindResult &other) const
 
 char *toString(const Cursor::FindResult &result);
 
-} // namespace Core
 } // namespace QLMDB
 
 #endif // CURSOR_H

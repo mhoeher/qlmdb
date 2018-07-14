@@ -19,12 +19,12 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
-#include "core/context.h"
-#include "core/database.h"
-#include "core/errors.h"
-#include "core/transaction.h"
+#include "context.h"
+#include "database.h"
+#include "errors.h"
+#include "transaction.h"
 
-using namespace QLMDB::Core;
+using namespace QLMDB;
 
 
 class Core_Database_Test : public QObject
@@ -43,6 +43,9 @@ private Q_SLOTS:
     void get();
     void operatorArraySubscript();
     void getAll();
+    void remove();
+    void clear();
+    void drop();
 
 private:
 
@@ -230,6 +233,107 @@ void Core_Database_Test::getAll()
     }
 }
 
+void Core_Database_Test::remove()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+
+    Database db(ctx);
+
+    QVERIFY(!db.remove("a"));
+    QVERIFY(db.put("a", "foo"));
+    QCOMPARE(db.get("a"), QByteArray("foo"));
+    QVERIFY(db.remove("a"));
+    QVERIFY(db.get("a").isNull());
+
+    QVERIFY(!db.remove<int>(1));
+    QVERIFY(db.put<int>(1, "Test"));
+    QCOMPARE(db.get<int>(1), QByteArray("Test"));
+    QVERIFY(db.remove<int>(1));
+    QVERIFY(db.get<int>(1).isNull());
+
+    {
+        Transaction txn(ctx);
+        QVERIFY(db.put(txn, "b", "bar"));
+        QCOMPARE(db.get(txn, "b"), QByteArray("bar"));
+        QVERIFY(db.remove(txn, "b"));
+        QVERIFY(db.get(txn, "b").isNull());
+
+        QVERIFY(db.put<int>(txn, 2, "abcde"));
+        QCOMPARE(db.get<int>(txn, 2), QByteArray("abcde"));
+        QVERIFY(db.remove<int>(txn, 2));
+        QVERIFY(db.get<int>(txn, 2).isEmpty());
+    }
+
+
+    Database mdb(ctx, "multi", Database::MultiValues | Database::Create);
+
+    QVERIFY(mdb.put("a", "foo1"));
+    QVERIFY(mdb.put("a", "foo2"));
+    QVERIFY(mdb.put("a", "foo3"));
+    QVERIFY(mdb.remove("a"));
+    QVERIFY(mdb.get("a").isEmpty());
+    QVERIFY(mdb.put("a", "foo1"));
+    QVERIFY(mdb.put("a", "foo2"));
+    QVERIFY(mdb.put("a", "foo3"));
+    QVERIFY(mdb.remove("a", "foo1"));
+    QCOMPARE(mdb.get("a"), QByteArray("foo2"));
+}
+
+void Core_Database_Test::clear()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+
+    Database db(ctx);
+
+    QVERIFY(db.put("a", "foo"));
+    QVERIFY(db.put("b", "bar"));
+    QVERIFY(db.put("c", "baz"));
+    QVERIFY(db.clear());
+    QVERIFY(db.get("a").isNull());
+    QVERIFY(db.get("b").isNull());
+    QVERIFY(db.get("c").isNull());
+
+    QVERIFY(db.put("a", "foo"));
+    QVERIFY(db.put("b", "bar"));
+    QVERIFY(db.put("c", "baz"));
+    {
+        Transaction txn(ctx);
+        QVERIFY(db.clear(txn));
+    }
+    QVERIFY(db.get("a").isNull());
+    QVERIFY(db.get("b").isNull());
+    QVERIFY(db.get("c").isNull());
+}
+
+void Core_Database_Test::drop()
+{
+    Context ctx;
+    ctx.setPath(tmpDir->path());
+    ctx.setMaxDBs(1);
+    QVERIFY(ctx.open());
+
+    {
+        Database db(ctx, "testDb", Database::MultiValues | Database::Create);
+        QVERIFY(db.isValid());
+        QVERIFY(db.drop());
+    }
+    {
+        Database db(ctx, "testDb", Database::IntegerKeys);
+        QVERIFY(!db.isValid());
+    }
+    {
+        Database db(ctx, "testDb", Database::IntegerKeys | Database::Create);
+        QVERIFY(db.isValid());
+    }
+
+}
+
 QTEST_APPLESS_MAIN(Core_Database_Test)
 
-#include "tst_core_database_test.moc"
+#include "tst_database_test.moc"

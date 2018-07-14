@@ -20,7 +20,6 @@
 #include "transactionprivate.h"
 
 namespace QLMDB {
-namespace Core {
 
 TransactionPrivate::TransactionPrivate(Context &context) :
     context(context),
@@ -52,5 +51,4 @@ void TransactionPrivate::handleOpenError()
     }
 }
 
-} // namespace Core
 } // namespace QLMDB

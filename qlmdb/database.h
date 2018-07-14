@@ -27,7 +27,6 @@
 #include "qlmdb_global.h"
 
 namespace QLMDB {
-namespace Core {
 
 class Cursor;
 class Context;
@@ -60,7 +59,7 @@ public:
     void clearLastError();
 
     bool put(const QByteArray &key, const QByteArray &value);
-    bool put(QLMDB::Core::Transaction &transaction, const QByteArray &key,
+    bool put(QLMDB::Transaction &transaction, const QByteArray &key,
              const QByteArray &value);
     QByteArray get(const QByteArray &key);
     QByteArray get(Transaction &transaction, const QByteArray &key);
@@ -73,6 +72,10 @@ public:
     bool remove(const QByteArray &key, const QByteArray &value);
     bool remove(Transaction &transaction, const QByteArray &key,
                 const QByteArray &value);
+    bool clear();
+    bool clear(Transaction &txn);
+    bool drop();
+    bool drop(Transaction &transaction);
 
     template<typename T>
     inline bool put(
@@ -311,7 +314,6 @@ inline bool Database::remove(
 }
 
 
-} // namespace Core
 } // namespace QLMDB
 
 #endif // DATABASE_H

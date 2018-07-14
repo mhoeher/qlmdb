@@ -20,7 +20,6 @@
 #include "cerrno"
 
 namespace QLMDB {
-namespace Core {
 
 /**
  * @brief Error codes.
@@ -217,6 +216,5 @@ const int OutOfDiskSpace = ENOSPC;
  */
 const int IOError = EIO;
 
-}
-}
-}
+} // namespace Errors
+} // namespace QLMDB

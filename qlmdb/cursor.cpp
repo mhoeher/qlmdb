@@ -27,7 +27,6 @@
 
 
 namespace QLMDB {
-namespace Core {
 
 
 /**
@@ -589,5 +588,4 @@ char *toString(const Cursor::FindResult &result)
     return qstrdup(str.toUtf8().data());
 }
 
-} // namespace Core
 } // namespace QLMDB

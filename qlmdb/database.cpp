@@ -20,12 +20,12 @@
 #include "cursor.h"
 #include "database.h"
 #include "databaseprivate.h"
+#include "errors.h"
 #include "transaction.h"
 #include "transactionprivate.h"
 
 
 namespace QLMDB {
-namespace Core {
 
 /**
  * @class Database
@@ -419,8 +419,10 @@ bool Database::remove(const QByteArray &key)
  */
 bool Database::remove(Transaction &transaction, const QByteArray &key)
 {
-    Q_UNUSED(transaction);
-    Q_UNUSED(key);
+    Cursor c(transaction, *this);
+    if (c.findKey(key).valid) {
+        return c.remove(Cursor::RemoveAll);
+    }
     return false;
 }
 
@@ -456,11 +458,110 @@ bool Database::remove(const QByteArray &key, const QByteArray &value)
 bool Database::remove(Transaction &transaction, const QByteArray &key,
                       const QByteArray &value)
 {
-    Q_UNUSED(transaction);
-    Q_UNUSED(key);
-    Q_UNUSED(value);
+    Cursor c(transaction, *this);
+    if (c.find(key, value).valid) {
+        return c.remove();
+    }
     return false;
 }
 
-} // namespace Core
+
+/**
+ * @brief Clear the database.
+ *
+ * This will remove all entries from the database. However, the database
+ * itself still remains in place and can be written to later on. On success,
+ * this method returns true, otherwise false.
+ */
+bool Database::clear()
+{
+    Q_D(Database);
+    bool result = false;
+    if (isValid()) {
+        if (d->context != nullptr) {
+            Transaction txn(*d->context);
+            result = clear(txn);
+        }
+    }
+    return result;
+}
+
+
+/**
+ * @brief Clear the database.
+ *
+ * This is an overloaded version of the clear() method. It runs the operation
+ * within the given @p transaction.
+ */
+bool Database::clear(Transaction &transaction)
+{
+    Q_D(Database);
+    bool result = false;
+    if (isValid() && transaction.isValid()) {
+        auto ret = mdb_drop(
+                    transaction.d_ptr->txn,
+                    d->db,
+                    0);
+        if (ret == Errors::NoError) {
+            clearLastError();
+            result = true;
+        } else {
+            d->lastErrorString = QObject::tr("Unexpected error while "
+                                             "clearing the database");
+        }
+    }
+    return result;
+}
+
+
+/**
+ * @brief Drop the database.
+ *
+ * This method will remove all entries from the database and remove the
+ * database itself at the end. This allows to recreate it with different
+ * settings.
+ *
+ * Returns true on success or false in case an error occurred.
+ */
+bool Database::drop()
+{
+    Q_D(Database);
+    bool result = false;
+    if (isValid()) {
+        if (d->context != nullptr) {
+            Transaction txn(*d->context);
+            result = drop(txn);
+        }
+    }
+    return result;
+}
+
+
+/**
+ * @brief Drop the database.
+ *
+ * This is an overloaded version of drop(). It runs the drop operation
+ * using the @p transaction.
+ */
+bool Database::drop(Transaction &transaction)
+{
+    Q_D(Database);
+    bool result = false;
+    if (isValid() && transaction.isValid()) {
+        auto ret = mdb_drop(
+                    transaction.d_ptr->txn,
+                    d->db,
+                    1);
+        if (ret == Errors::NoError) {
+            clearLastError();
+            result = true;
+            d->valid = false;
+        } else {
+            d->lastErrorString = QObject::tr("Unexpected error while "
+                                             "dropping the database");
+        }
+    }
+    return result;
+}
+
 } // namespace QLMDB

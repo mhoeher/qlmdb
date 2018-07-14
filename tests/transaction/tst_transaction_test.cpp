@@ -18,11 +18,11 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
-#include "core/context.h"
-#include "core/transaction.h"
-#include "core/errors.h"
+#include "context.h"
+#include "transaction.h"
+#include "errors.h"
 
-using namespace QLMDB::Core;
+using namespace QLMDB;
 
 
 class Core_Transaction_Test : public QObject
@@ -115,4 +115,4 @@ void Core_Transaction_Test::abort()
 
 QTEST_APPLESS_MAIN(Core_Transaction_Test)
 
-#include "tst_core_transaction_test.moc"
+#include "tst_transaction_test.moc"

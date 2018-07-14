@@ -27,7 +27,6 @@
 
 
 namespace QLMDB {
-namespace Core {
 
 //! @private
 class CursorPrivate
@@ -104,7 +103,6 @@ Cursor::FindResult CursorPrivate::get(MDB_val &key, MDB_val &value,
     return result;
 }
 
-} // namespace Core
 } // namespace QLMDB
 
 #endif // CURSORPRIVATE_H

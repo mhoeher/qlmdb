@@ -20,7 +20,6 @@
 #include "transactionprivate.h"
 
 namespace QLMDB {
-namespace Core {
 
 DatabasePrivate::DatabasePrivate() :
     context(nullptr),
@@ -72,5 +71,4 @@ bool DatabasePrivate::evaluateCreateError(const QString &name)
     return result;
 }
 
-} // namespace Core
 } // namespace QLMDB

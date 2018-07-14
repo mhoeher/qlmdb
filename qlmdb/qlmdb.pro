@@ -29,33 +29,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    core/context.cpp \
-    core/contextprivate.cpp \
-    core/errors.cpp \
-    core/transaction.cpp \
-    core/transactionprivate.cpp \
-    core/database.cpp \
-    core/databaseprivate.cpp \
-    core/cursor.cpp \
-    core/cursorprivate.cpp
-
-PUBLIC_CORE_HEADERS = \
-    core/context.h \
-    core/errors.h \
-    core/transaction.h \
-    core/database.h \
-    core/cursor.h \
+    context.cpp \
+    contextprivate.cpp \
+    errors.cpp \
+    transaction.cpp \
+    transactionprivate.cpp \
+    database.cpp \
+    databaseprivate.cpp \
+    cursor.cpp \
+    cursorprivate.cpp
 
 PUBLIC_HEADERS = \
     qlmdb_global.h \
+    context.h \
+    errors.h \
+    transaction.h \
+    database.h \
+    cursor.h \
 
 PRIVATE_HEADERS = \
-    core/contextprivate.h \
-    core/transactionprivate.h \
-    core/databaseprivate.h \
-    core/cursorprivate.h \
+    contextprivate.h \
+    transactionprivate.h \
+    databaseprivate.h \
+    cursorprivate.h \
 
-HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS $$PUBLIC_CORE_HEADERS
+HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS
 
 
 qlmdb_with_builtin_lmdb {
@@ -79,8 +77,5 @@ unix {
     headers.files = $$PUBLIC_HEADERS
     headers.path = $$[QT_INSTALL_HEADERS]/qlmdb
 
-    core_headers.files = $$PUBLIC_CORE_HEADERS
-    core_headers.path = $$[QT_INSTALL_HEADERS]/qlmdb/core
-
-    INSTALLS += headers core_headers
+    INSTALLS += headers
 }
