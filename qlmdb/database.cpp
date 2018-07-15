@@ -52,7 +52,7 @@ namespace QLMDB {
  *
  * Alternatively, a Database can be created from a Transaction. However,
  * note that you must guarantee that there is no other Transaction
- * ongoing when doing so:
+ * active in the same thread when doing so:
  *
  * ```
  * Context ctx;
@@ -73,7 +73,7 @@ namespace QLMDB {
  * ## Database Names and Types
  *
  * Within an LMDB context, multiple databases can be used. Each context
- * as a default database, which can be opened by passing an empty string
+ * has a default database, which can be opened by passing an empty string
  * as name into the Database constructors. Note that in order to use
  * named databases, you have to use Context::setMaxDBs() before opening
  * a Context.
@@ -98,6 +98,49 @@ namespace QLMDB {
  * so when opening an existing database, flags passed into the
  * constructor might be ignored. To change the flags, drop() the database
  * and re-create it.
+ *
+ * ## Writing to and Reading from a Database
+ *
+ * Read and write access to a database is possible via two ways:
+ *
+ * - The Database class provides several put() and get() methods which you can
+ *   use to write and read data. In addition, there are methods like getAll(),
+ *   remove() and clear(). For simple applications, these potentially are good
+ *   enough, as they allow you to access the data via a very simple interface.
+ *   Note that usually there are two overloaded versions of each Database
+ *   member function: One which takes a Transaction object and one that does
+ *   not. The functions taking a Transaction object will run the desired
+ *   operation in that transaction (so e.g. a write actually only happens
+ *   as soon as the given Transaction is committed). The versions not taking
+ *   a Transaction object will create a temporary Transaction internally.
+ *   In particular this means: **Do not use the member functions without a
+ *   Transaction object as argument when there are other active transactions
+ *   in the same thread!**
+ * - For more complex applications, you might rather create a Transaction and
+ *   use a Cursor inside it to access the data.
+ *
+ *
+ * ### A Note on Performance
+ *
+ * Creating transactions and cursors is a potentially expensive operation,
+ * especially if done very frequently in an application. Hence, if you
+ * need to access your databases very frequently, try to bundle multiple
+ * accesses in a single Transaction.
+ *
+ *
+ * ## Notes About Multi-Threading
+ *
+ * Each Database object actually is a thin wrapper around a LMDB database.
+ * Internally, the Database object just maintains a database handle, nothing
+ * more. This means you should create one instance per database you want to
+ * access in your application once when the application starts up (usually
+ * when you also create the Context object). Then, use these objects in any
+ * threads where you need access to the data.
+ *
+ * Bear in mind that a Database class acts as a RAII wrapper around a LMDB
+ * database. This in particular means that the underlying LMDB database
+ * handle is closed as soon as the destructor runs. Hence, ensure that there
+ * are no further Transaction and Cursor objects referencing the Database.
  */
 
 /**
@@ -340,7 +383,7 @@ QByteArray Database::get(const QByteArray &key)
 QByteArray Database::get(Transaction &transaction, const QByteArray &key)
 {
     Cursor cursor(transaction, *this);
-    return cursor.findKey(key).value;
+    return cursor.findKey(key).value();
 }
 
 
@@ -381,8 +424,8 @@ QByteArrayList Database::getAll(Transaction &transaction,
     Cursor cursor(transaction, *this);
     QByteArrayList result;
     auto item = cursor.findKey(key);
-    while (item.valid) {
-        result << item.value;
+    while (item.isValid()) {
+        result << item.value();
         item = cursor.nextForCurrentKey();
     }
     return result;
@@ -420,7 +463,7 @@ bool Database::remove(const QByteArray &key)
 bool Database::remove(Transaction &transaction, const QByteArray &key)
 {
     Cursor c(transaction, *this);
-    if (c.findKey(key).valid) {
+    if (c.findKey(key).isValid()) {
         return c.remove(Cursor::RemoveAll);
     }
     return false;
@@ -459,7 +502,7 @@ bool Database::remove(Transaction &transaction, const QByteArray &key,
                       const QByteArray &value)
 {
     Cursor c(transaction, *this);
-    if (c.find(key, value).valid) {
+    if (c.find(key, value).isValid()) {
         return c.remove();
     }
     return false;

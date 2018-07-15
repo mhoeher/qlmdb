@@ -70,12 +70,12 @@ qlmdb_with_builtin_lmdb {
     LIBS += -llmdb
 }
 
-unix {
-    target.path = $$[QT_INSTALL_LIBS]
-    INSTALLS += target
+target.path = $$[QT_INSTALL_LIBS]
+INSTALLS += target
 
-    headers.files = $$PUBLIC_HEADERS
-    headers.path = $$[QT_INSTALL_HEADERS]/qlmdb
+headers.files = $$PUBLIC_HEADERS
+headers.path = $$[QT_INSTALL_HEADERS]/qlmdb
 
-    INSTALLS += headers
-}
+INSTALLS += headers
+
+OTHER_FILES += mainpage.dox namespaces.dox

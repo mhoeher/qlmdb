@@ -97,7 +97,59 @@ const unsigned int Context::NoMemInit = MDB_NOMEMINIT;
  * read-only mode or if the database is represented as a single file on
  * disk or if it is a directory with several files in it.
  *
- * ## Notes About Multi-Threading and Multi-Processing
+ * ## Creating a Context
+ *
+ * To create or open an LMDB database, create a Context object and pass
+ * in the path you want to access:
+ *
+ * ```
+ * Context ctx;
+ * ctx.setPath("/path/to/lmdb-db");
+ * if (ctx.open()) {
+ *     // Context has been opened successfully, we can now
+ *     // start to create transactions, databases and so on...
+ * }
+ * ```
+ *
+ * To tweak the behavior of the context, you can set several attributes between
+ * constructing a new Context object and calling open(). In particular:
+ *
+ * ```
+ * Context ctx;
+ *
+ * // Set the maximum size of the context in bytes:
+ * ctx.setMapSize(1 * 1024 * 1024);
+ *
+ * // Set the maximum number of readers allowed in parallel:
+ * ctx.setMaxReaders(10);
+ *
+ * // Set the maximum number of databases (key-value stores):
+ * ctx.setMaxDBs(100);
+ *
+ * // Set the UNIX file permissions to set on created environment:
+ * ctx.setMode(0600);
+ *
+ * // Change some further attributes by changing the flags with which the
+ * // enviornment will be opened:
+ * ctx.setFlags(Context::NoSubDir | Context::ReadOnly);
+ *
+ * // Now, open/create the environment:
+ * if (ctx.open()) {
+ *     // Read/write data...
+ * }
+ * ```
+ *
+ * ## Notes About Multi-Threading
+ *
+ * After a context is configured and successfully opened, it may be used from
+ * multiple threads to create further classes like a Transaction. However,
+ * note that you must not call any non-const member function of the context as
+ * there is no locking to ensure write access is serialized.
+ *
+ * It is important to note, that a context (i.e. a path on disk) must
+ * not be opened multiple times from within the same process. If you need
+ * to access a context more than once, open it in one thread and then
+ * pass around the Context object.
  *
  */
 

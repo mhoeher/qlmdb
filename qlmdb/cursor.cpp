@@ -36,6 +36,74 @@ namespace QLMDB {
  * Cursor objects are created within a Transaction and are used on one
  * Database. They can be used to efficiently write data to, read data from
  * and delete data from their connected database.
+ *
+ * ## Creating a new Cursor
+ *
+ * Cursors are created inside a Transaction and connected to one
+ * Database object:
+ *
+ * ```
+ * Transaction txn(context);
+ * Database db(txn, "myDb");
+ *
+ * // Create a cursor inside the current transaction working on db:
+ * Cursor c(txn, db);
+ * ```
+ *
+ * ## Writing Data
+ *
+ * To write data via the cursor, use its put() method. Put expects the key
+ * and value and in addition can be passed several flags that change
+ * the behaviour of the insertion operation. For example, you can use these
+ * flags to only write a key-value pair if the key does not already exist in
+ * the database.
+ *
+ *
+ * ## Reading Data
+ *
+ * To read data via the cursor, you first have to position the cursor on
+ * one entry. This can be done via one of the following member functions:
+ *
+ * - first()
+ * - last()
+ * - firstForCurrentKey()
+ * - lastForCurrentKey()
+ * - find()
+ * - findNearest()
+ * - findKey()
+ * - findFirstAfter()
+ * - next()
+ * - nextForCurrentKey()
+ * - nextKey()
+ * - previous()
+ * - previousForCurrentKey()
+ * - previousKey()
+ *
+ * All of these methods will return a FindResult object containing the
+ * found key and value (or they will be invalid to indicate
+ * that no such entry could be found).
+ *
+ * As soon as the cursor is positioned, you can use current(), to get the
+ * current key-value pair or currentKey() and currentValue(), to only read
+ * back the current key or value respectively.
+ *
+ *
+ * ## Deleting Data
+ *
+ * To delete data from the database, first use one of the methods mentioned in
+ * the **Reading Data** section above to place the cursor. Then, use the
+ * remove() member function. It can be used to delete the current key-value
+ * pair or - in case the database is configured to allow multiple values
+ * per key - all values of the current key.
+ *
+ *
+ * ## Notes About Multi-Threading
+ *
+ * A Cursor must only be used in the thread it has been created in. Note that
+ * a Cursor requires a Transaction to be passed into its constructor. Usually,
+ * this means that mixing the Cursor API and the member functions found in the
+ * Database class, which are not taking a Transaction object, is not possible
+ * and will lead to deadlocks.
  */
 
 
@@ -107,6 +175,33 @@ const unsigned int Cursor::AppendDuplicate = MDB_APPENDDUP;
  * This must only be used with databases that allow multiple values per key.
  */
 const unsigned int Cursor::RemoveAll = MDB_NODUPDATA;
+
+
+/**
+ * @private
+ */
+class Cursor::FindResultPrivate
+{
+public:
+    QByteArray key;
+    QByteArray value;
+    bool valid;
+
+    FindResultPrivate() :
+        key(),
+        value(),
+        valid(false)
+    {
+    }
+
+    explicit FindResultPrivate(
+            const QByteArray &key, const QByteArray &value) :
+        key(key),
+        value(value),
+        valid(true)
+    {
+    }
+};
 
 
 /**
@@ -211,12 +306,12 @@ void Cursor::clearLastError()
  * written can be influenced by specifying additional @p flags, which is either
  * zero or a bitwise OR-combination of the following values:
  *
- * - ReplaceCurrent
- * - NoDuplicateData
- * - NoOverrideKey
- * - Reserve
- * - Append
- * - AppendDuplicate
+ * - #ReplaceCurrent
+ * - #NoDuplicateData
+ * - #NoOverrideKey
+ * - #Reserve
+ * - #Append
+ * - #AppendDuplicate
  *
  * If writing of the data was successful, the method returns true and the
  * cursor is positioned on the newly inserted key/value pair. On error,
@@ -280,8 +375,8 @@ QByteArray Cursor::currentKey()
 {
     QByteArray key;
     auto result = current();
-    if (result.valid) {
-        key = result.key;
+    if (result.isValid()) {
+        key = result.key();
     }
     return key;
 }
@@ -298,8 +393,8 @@ QByteArray Cursor::currentValue()
 {
     QByteArray value;
     auto result = current();
-    if (result.valid) {
-        value = result.value;
+    if (result.isValid()) {
+        value = result.value();
     }
     return value;
 }
@@ -358,7 +453,7 @@ Cursor::FindResult Cursor::firstForCurrentKey()
     // Note: MDB_FIRST_DUP does not update the key, hence we need to do
     // a "get current" if the operation itself succeeded.
     auto ret = d->get(key, value, MDB_FIRST_DUP);
-    if (ret.valid) {
+    if (ret.isValid()) {
         return d->get(key, value, MDB_GET_CURRENT);
     }
     return FindResult();
@@ -381,7 +476,7 @@ Cursor::FindResult Cursor::lastForCurrentKey()
     // Note: MDB_LAST_DUP does not update the key, hence we need to do
     // a "get current" if the operation itself succeeded.
     auto ret = d->get(key, value, MDB_LAST_DUP);
-    if (ret.valid) {
+    if (ret.isValid()) {
         return d->get(key, value, MDB_GET_CURRENT);
     }
     return FindResult();
@@ -539,7 +634,7 @@ Cursor::FindResult Cursor::previousKey()
  * In addition, the @p flags can be set to a bitwise OR-combination of the
  * following to adjust the behaviour:
  *
- * - RemoveAll
+ * - #RemoveAll
  *
  * The method returns true if the deletion was successfull or false otherwise.
  */
@@ -566,8 +661,8 @@ bool Cursor::remove(unsigned int flags)
     return result;
 }
 
-
 /**
+ * @private
  * @brief Helper function: Converts a Cursor::FindResult to a string.
  *
  * This function takes a find @p result and converts it to a (plain) string.
@@ -582,10 +677,112 @@ char *toString(const Cursor::FindResult &result)
     auto str = QString("QLMDB::Core::Cursor::FindResult("
                           "key='%1',value='%2',valid=%3");
     str = str.arg(
-                QString(result.key.toPercentEncoding())).arg(
-                QString(result.value.toPercentEncoding())).arg(
-                result.valid);
+                QString(result.key().toPercentEncoding())).arg(
+                QString(result.value().toPercentEncoding())).arg(
+                result.isValid());
     return qstrdup(str.toUtf8().data());
+}
+
+
+/**
+ * @brief The key the find result is associated with.
+ */
+QByteArray Cursor::FindResult::key() const
+{
+    Q_D(const FindResult);
+    return d->key;
+}
+
+
+/**
+ * @brief The value the find result is associated with.
+ */
+QByteArray Cursor::FindResult::value() const
+{
+    Q_D(const FindResult);
+    return d->value;
+}
+
+
+/**
+ * @brief Indicates if the find result is valid.
+ *
+ * If the find result is valid, this returns true. Otherwise,
+ * false is returned.
+ */
+bool Cursor::FindResult::isValid() const
+{
+    Q_D(const FindResult);
+    return d->valid;
+}
+
+
+/**
+ * @brief Check if this FindResult is equal to the @p other one.
+ */
+bool QLMDB::Cursor::FindResult::operator ==(const Cursor::FindResult &other) const
+{
+    return isValid() == other.isValid() &&
+            key() == other.key() &&
+            value() == other.value();
+}
+
+
+/**
+ * @brief Check if this FindResult is unequal to the @p other one.
+ */
+bool QLMDB::Cursor::FindResult::operator !=(const Cursor::FindResult &other) const
+{
+    return !(*this == other);
+}
+
+/**
+ * @brief Constructs an invalid FindResult.
+ */
+QLMDB::Cursor::FindResult::FindResult() :
+    d_ptr(new FindResultPrivate)
+{
+}
+
+
+/**
+ * @brief Constructs a FindResult from the given @p key and @p value.
+ */
+QLMDB::Cursor::FindResult::FindResult(
+        const QByteArray &key, const QByteArray &value) :
+    d_ptr(new FindResultPrivate(key, value))
+{
+}
+
+
+/**
+ * @brief Copy constructor.
+ */
+Cursor::FindResult::FindResult(const Cursor::FindResult &other) :
+    d_ptr(new FindResultPrivate(
+              other.key(), other.value()))
+{
+}
+
+
+/**
+ * @brief Destructor.
+ */
+Cursor::FindResult::~FindResult()
+{
+}
+
+
+/**
+ * @brief Assignment operator.
+ */
+Cursor::FindResult &Cursor::FindResult::operator =(const Cursor::FindResult &other)
+{
+    Q_D(FindResult);
+    d->key = other.key();
+    d->value = other.value();
+    d->valid = other.isValid();
+    return *this;
 }
 
 } // namespace QLMDB

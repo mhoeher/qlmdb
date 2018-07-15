@@ -1,0 +1,62 @@
+/**
+@mainpage Introduction to QLMDB
+
+# Introduction
+
+QLMDB is a thin Qt wrapper around the [LMDB](http://www.lmdb.tech/doc/)
+C library. The goal is to make LMDB available to Qt applications. Ideally,
+when you already used LMDB in the past, you should be quite familiar
+with the classes in QLMDB as well.
+
+Basically, the classes introduced in QLMDB - Context, Transaction, Database
+and Cursor - are thin wrappers around the LMDB primitives. Consequentially,
+they also follow their behavior e.g. regarding multi-threading. The QLMDB
+classes are designed following the [RAII idiom](
+https://en.wikipedia.org/wiki/Resource_acquisition_is_initialization). This
+means freeing one of these classes closes the underlying resources hold.
+
+
+# Using QLMDB
+
+First, you need to create a QLMDB::Context object which wraps an LMDB
+environment. The context is a handle to the data on disk and determines
+some configuration parameters like the maximum size of the environment, the
+number of readers allowed and so on.
+
+After you created a Context, you can continue by creating one or more
+QLMDB::Database objects. Database objects fulfill two purposes: First, they
+act as a handle to a database and hence need to be passed to further object
+constructors to let them access a particular database. Second, the Database
+class also provides a high level API for reading and writing data - for
+very simple applications, you can hence basically stop reading here and be done.
+
+In case you are writing a more complex application, you need to work with
+Transactions and Cursor. After you have opened your databases, you can create
+a QLMDB::Transaction to run operations on one or more of your databases.
+Finally, you can create a QLMDB::Cursor inside a transaction and a database,
+to read, write and delete data.
+
+
+# Multi-Threading
+
+The QLMDB library is following the LMDB way of multi-theading. Hence, the
+following general rules apply:
+
+- QLMDB::Context and QLMDB::Database objects should usually be created from
+  one thread in your application and then be reused where ever you need them.
+  Just make sure you do not call any non-const member function (like
+  QLMDB::Context::setPath()) after the initial setup. There is no explicit
+  locking and hence, calling these would cause crashes in your application.
+  However, obeying this rule should be easy enough, as there is no need to
+  change these objects after creation.
+- QLMDB::Transaction and QLMDB::Cursor objects are tied to the thread they are
+  created in. Do not pass them to other threads. In addition, per thread, there
+  must be at most one active transaction. Creating a QLMDB::Transaction while
+  another one already runs in the same thread will cause a deadlock.
+  Pay attention to some methods of the QLMDB::Database class in this context.
+  They are overloaded and usually present in one version which takes a
+  QLMDB::Transaction object and one which does not. The ones not taking a
+  transaction will try to create a temporary one, which will - in case you
+  have another active transaction - consequentially cause a lock, too.
+
+**/

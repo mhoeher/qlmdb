@@ -45,6 +45,7 @@ public:
 
 
 /**
+ * @private
  * @brief Construct a QByteArray from an MDB_val.
  *
  * This function returns a QByteArray which holds the data given in the
@@ -60,6 +61,7 @@ inline QByteArray value_to_bytearray(const MDB_val &val)
 
 
 /**
+ * @private
  * @brief Convert a byte array to a MDB_val.
  *
  * This initializes the fields of an MDB_val from the given @p byteArray.

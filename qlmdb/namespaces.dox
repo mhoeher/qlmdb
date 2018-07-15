@@ -1,0 +1,16 @@
+/**
+
+@namespace QLMDB
+@brief Classes belonging to the QLMDB library.
+
+This namespace is used to encapsulate all classes belonging to the QLMDB
+library. It contains wrappers for the primitives introduced by the LMDB
+C library:
+
+- Context - To encapsulate access to an LMDB context on disk.
+- Database - Which represents a single database within a Context.
+- Transaction - Which provides a consistent view for both reading and writing
+    data.
+- Cursor - Which is used to write data to, read and delete it from a Database.
+
+**/

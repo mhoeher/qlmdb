@@ -46,30 +46,28 @@ public:
     // Flags for data deletion:
     static const unsigned int RemoveAll;
 
+    class FindResultPrivate;
 
     /**
      * @brief Represents a data item retrieved via the cursor.
      */
-    struct FindResult {
-        /**
-         * @brief The key of the result or a null byte array for invalid ones.
-         */
-        QByteArray key;
+    class FindResult {
+    public:
+        FindResult();
+        explicit FindResult(const QByteArray &key, const QByteArray &value);
+        FindResult(const FindResult &other);
+        virtual ~FindResult();
+        FindResult& operator =(const FindResult &other);
+        bool operator ==(const FindResult &other) const;
+        bool operator !=(const FindResult &other) const;
+        QByteArray key() const;
+        QByteArray value() const;
+        bool isValid() const;
 
-        /**
-         * @brief The value of the result or a null byte array for invalid ones.
-         */
-        QByteArray value;
+    private:
 
-        /**
-         * @brief True if the result is valid or false otherwise.
-         */
-        bool valid;
-
-        inline FindResult();
-        inline FindResult(const QByteArray &key, const QByteArray &value);
-        inline bool operator ==(const FindResult &other) const;
-        inline bool operator !=(const FindResult &other) const;
+        QScopedPointer<FindResultPrivate> d_ptr;
+        Q_DECLARE_PRIVATE(FindResult)
     };
 
     explicit Cursor(Transaction &transaction, Database &database);
@@ -105,50 +103,6 @@ private:
     QScopedPointer<CursorPrivate> d_ptr;
     Q_DECLARE_PRIVATE(Cursor)
 };
-
-
-/**
- * @brief Constructs an invalid FindResult.
- */
-Cursor::FindResult::FindResult() :
-    key(),
-    value(),
-    valid(false)
-{
-}
-
-
-/**
- * @brief Constructs a FindResult from the given @p key and @p value.
- */
-Cursor::FindResult::FindResult(const QByteArray &key, const QByteArray &value) :
-    key(key),
-    value(value),
-    valid(true)
-{
-}
-
-
-/**
- * @brief Check if this FindResult is equal to the @p other one.
- */
-bool Cursor::FindResult::operator ==(const Cursor::FindResult &other) const
-{
-    return valid == other.valid &&
-            key == other.key &&
-            value == other.value;
-}
-
-
-/**
- * @brief Check if this FindResult is unequal to the @p other one.
- */
-bool Cursor::FindResult::operator !=(const Cursor::FindResult &other) const
-{
-    return !(*this == other);
-}
-
-char *toString(const Cursor::FindResult &result);
 
 } // namespace QLMDB
 
