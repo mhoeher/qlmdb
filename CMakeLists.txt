@@ -1,6 +1,9 @@
 cmake_minimum_required(VERSION 3.1.0)
 project(qlmdb)
 
+# Include required CMake libraries:
+include(GNUInstallDirs)
+
 # Find includes in corresponding build directories
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 

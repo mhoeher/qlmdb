@@ -1,15 +1,19 @@
 set(
-    QLMDB_HEADERS
+    QLMDB_PUBLIC_HEADERS
     qlmdb_global.h
+    context.h
     errors.h
+    transaction.h
+    database.h
+    cursor.h
+)
+set(
+    QLMDB_HEADERS
+    ${QLMDB_PUBLIC_HEADERS}
     contextprivate.h
     databaseprivate.h
     cursorprivate.h
-    context.h
-    cursor.h
-    database.h
     transactionprivate.h
-    transaction.h
 )
 
 set(
@@ -62,13 +66,29 @@ add_library(
 )
 
 target_link_libraries(qlmdb PUBLIC Qt5::Core ${LMDB_LIBS})
+
 target_include_directories(
     qlmdb
     INTERFACE
     ${CMAKE_CURRENT_SOURCE_DIR}/../
 )
+
 target_include_directories(
     qlmdb
     PRIVATE
     ${LMDB_INCLUDE_DIRS}
+)
+
+install(
+    TARGETS
+        qlmdb
+    DESTINATION
+        ${CMAKE_INSTALL_LIBDIR}
+)
+
+install(
+    FILES
+        ${QLMDB_PUBLIC_HEADERS}
+    DESTINATION
+        ${CMAKE_INSTALL_INCLUDEDIR}/qlmdb
 )

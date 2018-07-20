@@ -13,6 +13,8 @@ In addition, the following optional prerequisites can be installed:
 * LMDB (library and development files).
 
 
+## Building with qmake
+
 The project can be build via `qmake`:
 
 ```bash
@@ -32,3 +34,22 @@ customize the build:
   against a built-in version of the LMDB C library.
 * `qlmdb_with_static_libs`: If this option is given, the library is built as
   a static library.
+
+
+## Building with cmake
+
+The project can be build via `qmake`:
+
+```bash
+mkdir build
+cd build
+cmake ..
+make
+```
+
+The following options can be set to `ON` to change the behavior of the
+build:
+
+* `QLMDB_WITH_STATIC_LIBS`: Build the library as a static library.
+* `QLMDB_WITH_BUILTIN_LMDB`: Build the library with a built in version of the
+  LMDB C library.
