@@ -19,11 +19,11 @@
 #include <QTemporaryFile>
 #include <QtTest>
 
-#include "context.h"
-#include "cursor.h"
-#include "database.h"
-#include "errors.h"
-#include "transaction.h"
+#include "qlmdb/context.h"
+#include "qlmdb/cursor.h"
+#include "qlmdb/database.h"
+#include "qlmdb/errors.h"
+#include "qlmdb/transaction.h"
 
 using namespace QLMDB;
 

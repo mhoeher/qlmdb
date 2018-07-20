@@ -24,5 +24,5 @@ LIBS += -lqlmdb
 
 QMAKE_RPATHDIR = $$OUT_PWD/../../qlmdb
 
-INCLUDEPATH += $$PWD/../qlmdb
+INCLUDEPATH += $$PWD/../
 DEPENDPATH += $$PWD/../qlmdb

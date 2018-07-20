@@ -8,14 +8,14 @@ cd ..
 cd ..
 
 if [ -n "$CI" ]; then
-    dnf install -y gcc gcc-c++ make qt5-qtbase-devel lmdb-devel
+    dnf install -y gcc gcc-c++ make qt5-qtbase-devel lmdb-devel cmake
 fi
 
-mkdir -p build/fedora
-cd build/fedora
-qmake-qt5 ../..
+mkdir -p build/fedora-cmake
+cd build/fedora-cmake
+cmake ../..
 make -j4
-make check
+make test
 
 ls qlmdb | grep libqlmdb.so
 ldd qlmdb/libqlmdb.so | grep liblmdb.so

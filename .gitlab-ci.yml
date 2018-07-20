@@ -19,6 +19,27 @@ fedora-buitlin-lmdb:
         - ./bin/ci/build-and-test-builtin-lmdb.sh
 
 
+fedora-cmake:
+    stage: build
+    image: fedora
+    script:
+        - ./bin/ci/build-and-test-cmake.sh
+
+
+fedora-cmake-static:
+    stage: build
+    image: fedora
+    script:
+        - ./bin/ci/build-and-test-cmake-static.sh
+
+
+fedora-cmake-static:
+    stage: build
+    image: fedora
+    script:
+        - ./bin/ci/build-and-test-cmake-builtin-lmdb.sh
+
+
 pages:
     stage: build
     image: fedora

@@ -11,4 +11,5 @@ OTHER_FILES += \
     Doxyfile \
     README.md \
     $$files(bin/ci/*.sh) \
-    $$files(bin/*)
+    $$files(bin/*) \
+    $$files(CMakeLists.txt,true)

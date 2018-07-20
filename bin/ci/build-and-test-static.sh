@@ -16,3 +16,5 @@ cd build/fedora-static
 qmake-qt5 CONFIG+=qlmdb_with_static_libs ../..
 make -j4
 make check
+
+ls qlmdb | grep libqlmdb.a

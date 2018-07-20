@@ -18,9 +18,9 @@
 #include <QTemporaryDir>
 #include <QtTest>
 
-#include "context.h"
-#include "transaction.h"
-#include "errors.h"
+#include "qlmdb/context.h"
+#include "qlmdb/transaction.h"
+#include "qlmdb/errors.h"
 
 using namespace QLMDB;
 
