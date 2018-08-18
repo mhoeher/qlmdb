@@ -67,6 +67,11 @@ add_library(
 
 target_link_libraries(qlmdb PUBLIC Qt5::Core ${LMDB_LIBS})
 
+if(Threads_FOUND)
+    target_link_libraries (qlmdb PUBLIC ${CMAKE_THREAD_LIBS_INIT})
+endif()
+
+
 target_include_directories(
     qlmdb
     INTERFACE

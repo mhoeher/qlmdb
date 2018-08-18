@@ -17,6 +17,8 @@ set(CMAKE_AUTOMOC ON)
 # Find the QtCore library
 find_package(Qt5Core CONFIG REQUIRED)
 find_package(Qt5Test CONFIG REQUIRED)
+find_package (Threads)
+
 
 # Enable testing
 enable_testing()
