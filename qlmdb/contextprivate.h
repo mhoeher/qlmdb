@@ -135,6 +135,12 @@ public:
                 lastErrorString = QObject::tr("Environment is currently locked "
                                               "by another process: %1").arg(
                             path);
+            } else if (lastError == Errors::OutOfMemory) {
+                lastErrorString = QObject::tr("Not enough free disk space to "
+                                              "open environment %1").arg(
+                            path);
+            } else {
+                lastErrorString = QObject::tr("Unexpected error");
             }
         }
         return result;
