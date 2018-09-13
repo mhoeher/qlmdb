@@ -18,7 +18,6 @@
 #define DATABASE_H
 
 #include <type_traits>
-#include <optional>
 
 #include <QByteArrayList>
 #include <QScopedPointer>

@@ -17,8 +17,6 @@
 #ifndef CURSOR_H
 #define CURSOR_H
 
-#include <optional>
-
 #include <QByteArray>
 #include <QPair>
 #include <QString>
