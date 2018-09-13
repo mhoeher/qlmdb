@@ -84,6 +84,8 @@ target_include_directories(
     ${LMDB_INCLUDE_DIRS}
 )
 
+target_compile_definitions(qlmdb PRIVATE QLMDB_LIBRARY)
+
 install(
     TARGETS
         qlmdb
