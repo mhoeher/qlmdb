@@ -86,6 +86,10 @@ target_include_directories(
 
 target_compile_definitions(qlmdb PRIVATE QLMDB_LIBRARY)
 
+if(ANDROID)
+    target_compile_definitions(qlmdb PRIVATE ANDROID)
+endif()
+
 install(
     TARGETS
         qlmdb
