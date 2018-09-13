@@ -49,7 +49,7 @@ public:
     /**
      * @brief Represents a data item retrieved via the cursor.
      */
-    class FindResult {
+    class QLMDBSHARED_EXPORT FindResult {
     public:
         FindResult();
         explicit FindResult(const QByteArray &key, const QByteArray &value);
