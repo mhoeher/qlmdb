@@ -38,13 +38,7 @@ endif()
 if(QLMDB_WITH_BUILTIN_LMDB)
     set(
         LMDB_SOURCES
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/liblmdb/mdb.c
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/liblmdb/midl.c
-    )
-    set(
-        LMDB_HEADERS
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/liblmdb/lmdb.h
-        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/liblmdb/midl.h
+        mdb.c midl.c
     )
     set(
         LMDB_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/liblmdb
@@ -62,7 +56,6 @@ add_library(
     ${QLMDB_HEADERS}
     ${QLMDB_SOURCES}
     ${LMDB_SOURCES}
-    ${LMDB_HEADERS}
 )
 
 target_link_libraries(qlmdb PUBLIC Qt5::Core ${LMDB_LIBS})

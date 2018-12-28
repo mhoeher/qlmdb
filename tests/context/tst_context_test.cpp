@@ -67,6 +67,7 @@ void Core_Context_Test::open()
 {
     Context context;
     context.setPath(tmpDir->path());
+    context.setMapSize(5000);
     QVERIFY(context.open());
     QVERIFY(context.isOpen());
     QCOMPARE(context.lastError(), Errors::NoError);

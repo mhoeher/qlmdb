@@ -72,6 +72,7 @@ void Core_Database_Test::fromContext()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(10);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     Database defaultDB(ctx);
@@ -95,6 +96,7 @@ void Core_Database_Test::fromTransaction()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(10);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     Transaction txn(ctx);
@@ -128,6 +130,7 @@ void Core_Database_Test::put()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     Database db(ctx);
@@ -153,6 +156,7 @@ void Core_Database_Test::get()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     Database db(ctx);
@@ -187,6 +191,7 @@ void Core_Database_Test::operatorArraySubscript()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     Database db(ctx);
@@ -207,6 +212,7 @@ void Core_Database_Test::getAll()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     Database mdb(ctx, "multi", Database::MultiValues | Database::Create);
@@ -238,6 +244,7 @@ void Core_Database_Test::remove()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     Database db(ctx);
@@ -287,6 +294,7 @@ void Core_Database_Test::clear()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     Database db(ctx);
@@ -316,6 +324,7 @@ void Core_Database_Test::drop()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
+    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
 
     {

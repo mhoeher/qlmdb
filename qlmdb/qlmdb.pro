@@ -59,12 +59,7 @@ HEADERS += $$PRIVATE_HEADERS $$PUBLIC_HEADERS
 qlmdb_with_builtin_lmdb {
     # Use built-in version of LMDB
     INCLUDEPATH += ../3rdparty/liblmdb
-    SOURCES += \
-        ../3rdparty/liblmdb/mdb.c \
-        ../3rdparty/liblmdb/midl.c
-    HEADERS += \
-        ../3rdparty/liblmdb/lmdb.h \
-        ../3rdparty/liblmdb/midl.h
+    SOURCES += mdb.c midl.c
 } else {
     # Use system LMDB
     LIBS += -llmdb
