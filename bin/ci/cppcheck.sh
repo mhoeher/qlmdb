@@ -16,4 +16,4 @@ cppcheck  \
     --error-exitcode=1 \
     --inline-suppr \
     --template='{file}:{line} {severity} "{id}": {message}' \
-    qlmdb/ tests/
+    qlmdb/*.cpp tests/
