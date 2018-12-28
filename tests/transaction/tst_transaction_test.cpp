@@ -62,7 +62,6 @@ void Core_Transaction_Test::constructor()
 {
     Context context;
     context.setPath(tmpDir->path());
-    context.setMapSize(5000);
     QVERIFY(context.open());
 
     Transaction txn(context);
@@ -80,7 +79,6 @@ void Core_Transaction_Test::commit()
 {
     Context context;
     context.setPath(tmpDir->path());
-    context.setMapSize(5000);
     QVERIFY(context.open());
 
     Transaction txn(context);
@@ -100,7 +98,6 @@ void Core_Transaction_Test::abort()
 {
     Context context;
     context.setPath(tmpDir->path());
-    context.setMapSize(5000);
     QVERIFY(context.open());
 
     Transaction txn(context);

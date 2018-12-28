@@ -65,7 +65,6 @@ void Core_Cursor_Test::constructor()
     {
         Context ctx;
         ctx.setPath(tmpDir->path());
-        ctx.setMapSize(5000);
         QVERIFY(ctx.open());
         Transaction txn(ctx);
         QVERIFY(txn.isValid());
@@ -97,7 +96,6 @@ void Core_Cursor_Test::put()
         Context ctx;
         ctx.setPath(tmpDir->path());
         ctx.setMaxDBs(1);
-        ctx.setMapSize(5000);
         QVERIFY(ctx.open());
         {
             Transaction txn(ctx);
@@ -158,7 +156,6 @@ void Core_Cursor_Test::get()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
-    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
     {
         Transaction txn(ctx);
@@ -215,7 +212,6 @@ void Core_Cursor_Test::remove()
     Context ctx;
     ctx.setPath(tmpDir->path());
     ctx.setMaxDBs(1);
-    ctx.setMapSize(5000);
     QVERIFY(ctx.open());
     {
         Transaction txn(ctx);
