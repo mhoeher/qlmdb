@@ -65,11 +65,23 @@ qlmdb_with_builtin_lmdb {
     LIBS += -llmdb
 }
 
-target.path = $$[QT_INSTALL_LIBS]
+isEmpty(INSTALL_PREFIX) {
+    target.path = $$[QT_INSTALL_LIBS]
+} else {
+    win32 {
+        target.path = $$INSTALL_PREFIX/bin
+    } else {
+        target.path = $$INSTALL_PREFIX/lib
+    }
+}
 INSTALLS += target
 
 headers.files = $$PUBLIC_HEADERS
-headers.path = $$[QT_INSTALL_HEADERS]/qlmdb
+isEmpty(INSTALL_PREFIX) {
+    headers.path = $$[QT_INSTALL_HEADERS]/include/qlmdb
+} else {
+    headers.path = $$INSTALL_PREFIX/include/qlmdb
+}
 
 INSTALLS += headers
 
