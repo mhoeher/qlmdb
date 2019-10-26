@@ -44,10 +44,10 @@ public:
     static const unsigned int ReverseKeyMultiValues;
     static const unsigned int Create;
 
-    Database(Context &context,
+    explicit Database(Context &context,
              const QString &name = QString(),
              unsigned int flags = Create);
-    Database(Transaction &transaction,
+    explicit Database(Transaction &transaction,
              const QString &name = QString(),
              unsigned int flags = Create);
     virtual ~Database();
