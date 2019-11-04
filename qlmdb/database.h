@@ -19,6 +19,7 @@
 
 #include <type_traits>
 
+#include <QByteArray>
 #include <QByteArrayList>
 #include <QScopedPointer>
 #include <QString>
