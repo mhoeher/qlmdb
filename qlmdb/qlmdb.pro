@@ -60,6 +60,9 @@ qlmdb_with_builtin_lmdb {
     # Use built-in version of LMDB
     INCLUDEPATH += ../3rdparty/liblmdb
     SOURCES += mdb.c midl.c
+
+    # https://github.com/SUIRON/CLMDB/issues/2
+    ios:DEFINES += MDB_USE_POSIX_SEM
 } else {
     # Use system LMDB
     LIBS += -llmdb
