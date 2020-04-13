@@ -12,7 +12,7 @@
  * GNU Lesser General Public License for more details.
  *
  * You should have received a copy of the GNU General Public License
- * along with Foobar.  If not, see <http://www.gnu.org/licenses/>.
+ * along with QLMDB.  If not, see <http://www.gnu.org/licenses/>.
  */
 #ifndef ERRORS_H
 #define ERRORS_H
