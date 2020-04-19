@@ -3,7 +3,7 @@ TEMPLATE = subdirs
 SUBDIRS += \
     qlmdb
 
-!ios {
+!ios:!android {
     SUBDIRS += tests
     tests.depends += qlmdb
 }

@@ -20,7 +20,14 @@ win32:CONFIG(release, debug|release): LIBS += -L$$OUT_PWD/../../qlmdb/release/
 else:win32:CONFIG(debug, debug|release): LIBS += -L$$OUT_PWD/../../qlmdb/debug/
 else: LIBS += -L$$OUT_PWD/../../qlmdb/
 
-LIBS += -lqlmdb
+android:versionAtLeast(QT_VERSION, 5.14.0) {
+    # Starting from Qt 5.14, Qt is multi arch (i.e. several architectures
+    # in the same Qt installation with each library having the architecture
+    # as suffix). We need to explicitly link against the right one:
+    LIBS += -lqlmdb_$$QT_ARCH
+} else {
+    LIBS += -lqlmdb
+}
 
 QMAKE_RPATHDIR = $$OUT_PWD/../../qlmdb
 
