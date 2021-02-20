@@ -10,6 +10,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 # Define options users can set to change details of the build:
 option(QLMDB_WITH_STATIC_LIBS "Build QLMDB as static library." OFF)
 option(QLMDB_WITH_BUILTIN_LMDB "Build QLMDB with a built-in version of LMDB." OFF)
+option(QLMDB_WITHOUT_TESTS "Do not build unit tests." OFF)
 
 # Instruct CMake to run moc automatically when needed
 set(CMAKE_AUTOMOC ON)
@@ -24,4 +25,7 @@ find_package (Threads)
 enable_testing()
 
 add_subdirectory(qlmdb)
-add_subdirectory(tests)
+
+if(NOT QLMDB_WITHOUT_TESTS)
+    add_subdirectory(tests)
+endif()
