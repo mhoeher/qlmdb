@@ -77,7 +77,16 @@ target_include_directories(
     ${LMDB_INCLUDE_DIRS}
 )
 
-target_compile_definitions(qlmdb PRIVATE QLMDB_LIBRARY)
+target_compile_definitions(
+    qlmdb 
+
+    PRIVATE 
+        QLMDB_LIBRARY
+
+    PUBLIC
+    # Request export of symbols only if we don't build a static library
+    $<IF:$<STREQUAL:$<TARGET_PROPERTY:qlmdb,TYPE>,STATIC_LIBRARY>,QLMDB_LIBRARY_STATIC,QLMDB_LIBRARY_SHARED>
+)
 
 if(ANDROID)
     target_compile_definitions(qlmdb PRIVATE ANDROID)

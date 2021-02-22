@@ -19,10 +19,14 @@
 
 #include <QtCore/qglobal.h>
 
-#if defined(QLMDB_LIBRARY)
-#  define QLMDBSHARED_EXPORT Q_DECL_EXPORT
+#if defined(QLMDB_LIBRARY_STATIC)
+#    define QLMDBSHARED_EXPORT
 #else
-#  define QLMDBSHARED_EXPORT Q_DECL_IMPORT
+#    if defined(QLMDB_LIBRARY)
+#        define QLMDBSHARED_EXPORT Q_DECL_EXPORT
+#    else
+#        define QLMDBSHARED_EXPORT Q_DECL_IMPORT
+#    endif
 #endif
 
 #endif // QLMDB_GLOBAL_H
