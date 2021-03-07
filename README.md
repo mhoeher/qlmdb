@@ -24,12 +24,35 @@ and multi-processes (which basically is derived from the LMDB C library).
 
 You will need the following pre-requisites for building the project:
 
-* Qt 5.9 or up.
+* Qt 5. In particular, the project needs the following components:
+  * Qt Core.
+  * Qt Test (only during build time).
 * A suitable compiler.
 
 In addition, the following optional prerequisites can be installed:
 
 * LMDB (library and development files).
+
+
+### Building with cmake
+
+The project can be build via `cmake`:
+
+```bash
+mkdir build
+cd build
+cmake --DCMAKE_BUILD_TYPE=Release ..
+cmake --build .
+cmake --build . --target test
+cmake --build . --target install
+```
+
+The following options can be set to change the behavior of the
+build:
+
+* `QLMDB_USE_SYSTEM_LIBRARIES`: Set to `ON` to build against system libraries. The default is `OFF` (i.e. the project is build against internal copies of dependencies).
+* `QLMDB_WITH_SYSTEM_LMDB`: Set to `ON` to build against the system LMDB library. The default is to use the same value as `QLMDB_USE_SYSTEM_LIBRARIES`.
+* `QLMDB_WITH_STATIC_LIBS`: Build the library as a static library. The default is `OFF`.
 
 
 ### Building with qmake
@@ -53,25 +76,6 @@ customize the build:
   against a built-in version of the LMDB C library.
 * `qlmdb_with_static_libs`: If this option is given, the library is built as
   a static library.
-
-
-### Building with cmake
-
-The project can be build via `qmake`:
-
-```bash
-mkdir build
-cd build
-cmake ..
-make
-```
-
-The following options can be set to `ON` to change the behavior of the
-build:
-
-* `QLMDB_WITH_STATIC_LIBS`: Build the library as a static library.
-* `QLMDB_WITH_BUILTIN_LMDB`: Build the library with a built in version of the
-  LMDB C library.
 
 
 ## License

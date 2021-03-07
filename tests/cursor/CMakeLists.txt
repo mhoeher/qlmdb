@@ -5,8 +5,8 @@ add_executable(
 
 target_link_libraries(
     tst_cursor
-    Qt5::Core
-    Qt5::Test
+    Qt${QT_VERSION_MAJOR}::Core
+    Qt${QT_VERSION_MAJOR}::Test
     qlmdb
 )
 

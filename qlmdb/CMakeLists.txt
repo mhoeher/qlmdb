@@ -35,19 +35,20 @@ else()
     set(QLMDB_LIB_MODE SHARED)
 endif()
 
-if(QLMDB_WITH_BUILTIN_LMDB)
+if(NOT QLMDB_WITH_SYSTEM_LMDB)
     set(
         LMDB_SOURCES
         mdb.c midl.c
     )
     set(
-        LMDB_INCLUDE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/liblmdb
+        LMDB_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../3rdparty/liblmdb
     )
 else()
     set(
         LMDB_LIBS
-        lmdb
+        ${LMDB_LIBRARIES}
     )
+
 endif()
 
 add_library(
@@ -58,7 +59,7 @@ add_library(
     ${LMDB_SOURCES}
 )
 
-target_link_libraries(qlmdb PUBLIC Qt5::Core ${LMDB_LIBS})
+target_link_libraries(qlmdb PUBLIC Qt${QT_VERSION_MAJOR}::Core ${LMDB_LIBS})
 
 if(Threads_FOUND)
     target_link_libraries (qlmdb PUBLIC ${CMAKE_THREAD_LIBS_INIT})
@@ -68,13 +69,10 @@ endif()
 target_include_directories(
     qlmdb
     INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/../
-)
-
-target_include_directories(
-    qlmdb
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/../>
+        $<INSTALL_INTERFACE:include>
     PRIVATE
-    ${LMDB_INCLUDE_DIRS}
+        ${LMDB_INCLUDE_DIR}
 )
 
 target_compile_definitions(
@@ -84,9 +82,16 @@ target_compile_definitions(
         QLMDB_LIBRARY
 
     PUBLIC
-    # Request export of symbols only if we don't build a static library
-    $<IF:$<STREQUAL:$<TARGET_PROPERTY:qlmdb,TYPE>,STATIC_LIBRARY>,QLMDB_LIBRARY_STATIC,QLMDB_LIBRARY_SHARED>
+        # Request export of symbols only if we don't build a static library
+        $<IF:$<STREQUAL:$<TARGET_PROPERTY:qlmdb,TYPE>,STATIC_LIBRARY>,QLMDB_LIBRARY_STATIC,QLMDB_LIBRARY_SHARED>
 )
+
+set_target_properties(
+    qlmdb
+    PROPERTIES
+        SOVERSION ${QLMDB_VERSION}
+)
+
 
 if(ANDROID)
     target_compile_definitions(qlmdb PRIVATE ANDROID)
@@ -95,6 +100,8 @@ endif()
 install(
     TARGETS
         qlmdb
+    EXPORT
+        QLMDBTargets
     DESTINATION
         ${CMAKE_INSTALL_LIBDIR}
 )
