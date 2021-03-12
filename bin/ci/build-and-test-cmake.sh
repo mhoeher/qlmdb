@@ -20,8 +20,8 @@ cmake \
 cmake --build .
 cmake --build . --target test
 
-ls qlmdb | grep libqlmdb.so
-ldd qlmdb/libqlmdb.so | grep liblmdb.so
+ls qlmdb | grep libqlmdb-qt5.so
+ldd qlmdb/libqlmdb-qt5.so | grep liblmdb.so
 
 DESTDIR=$PWD/_ cmake --build . --target install
 

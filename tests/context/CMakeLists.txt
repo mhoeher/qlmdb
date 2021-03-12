@@ -7,7 +7,7 @@ target_link_libraries(
     tst_context
     Qt${QT_VERSION_MAJOR}::Core
     Qt${QT_VERSION_MAJOR}::Test
-    qlmdb
+    qlmdb-qt${QT_VERSION_MAJOR}
 )
 
 add_test(NAME context COMMAND tst_context)

@@ -56,14 +56,14 @@ install(
     NAMESPACE
         QLMDB::
     DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/cmake/QLMDB
+        ${CMAKE_INSTALL_LIBDIR}/cmake/QLMDB-qt${QT_VERSION_MAJOR}
 )
 
 
 # Export library interface:
 include(CMakePackageConfigHelpers)
 write_basic_package_version_file(
-    QLMDBConfigVersion.cmake
+    QLMDB-qt${QT_VERSION_MAJOR}ConfigVersion.cmake
     VERSION
         ${QLMDB_VERSION}
     COMPATIBILITY
@@ -71,14 +71,14 @@ write_basic_package_version_file(
 )
 install(
     FILES
-        ${CMAKE_CURRENT_BINARY_DIR}/QLMDBConfig.cmake
-        ${CMAKE_CURRENT_BINARY_DIR}/QLMDBConfigVersion.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/QLMDB-qt${QT_VERSION_MAJOR}Config.cmake
+        ${CMAKE_CURRENT_BINARY_DIR}/QLMDB-qt${QT_VERSION_MAJOR}ConfigVersion.cmake
     DESTINATION
-        ${CMAKE_INSTALL_LIBDIR}/cmake/QLMDB
+        ${CMAKE_INSTALL_LIBDIR}/cmake/QLMDB-qt${QT_VERSION_MAJOR}
 )
 configure_package_config_file(
-    cmake/QLMDBConfig.cmake QLMDBConfig.cmake
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/QLMDB
+    cmake/QLMDBConfig.cmake QLMDB-qt${QT_VERSION_MAJOR}Config.cmake
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/QLMDB-qt${QT_VERSION_MAJOR}
 )
 
 
@@ -101,9 +101,9 @@ if(ECM_FOUND)
     
     ecm_generate_pri_file(
         BASE_NAME
-            QLMDB
+            QLMDB-qt${QT_VERSION_MAJOR}
         LIB_NAME
-            qlmdb
+            qlmdb-qt${QT_VERSION_MAJOR}
         DEPS
             ${PRI_DEPS}
         FILENAME_VAR
