@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.1.0)
 file(READ version.txt QLMDB_VERSION)
+string(STRIP "${QLMDB_VERSION}" QLMDB_VERSION)
 project(qlmdb VERSION ${QLMDB_VERSION})
 
 # Generate build commands JSON file:
