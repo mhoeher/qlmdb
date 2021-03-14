@@ -112,3 +112,9 @@ install(
     DESTINATION
         ${CMAKE_INSTALL_INCLUDEDIR}/qlmdb-qt${QT_VERSION_MAJOR}/qlmdb
 )
+
+
+# Add an alias target, so that including the project in source form in another
+# project, is possible as well without writing additional code in the host
+# project:
+add_library(QLMDB::qlmdb-qt${QT_VERSION_MAJOR} ALIAS qlmdb-qt${QT_VERSION_MAJOR})
