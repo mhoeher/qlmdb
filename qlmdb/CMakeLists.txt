@@ -97,6 +97,13 @@ if(ANDROID)
     target_compile_definitions(qlmdb-qt${QT_VERSION_MAJOR} PRIVATE ANDROID)
 endif()
 
+if(NOT QLMDB_WITH_SYSTEM_LMDB AND ${CMAKE_SYSTEM_NAME} STREQUAL "iOS")
+    # https://github.com/SUIRON/CLMDB/issues/2
+    target_compile_definitions(
+        qlmdb-qt${QT_VERSION_MAJOR} PRIVATE MDB_USE_POSIX_SEM
+    )
+endif()
+
 install(
     TARGETS
         qlmdb-qt${QT_VERSION_MAJOR}
